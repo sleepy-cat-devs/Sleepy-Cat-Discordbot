@@ -9,6 +9,8 @@ import copy
 client = discord.Client()
 token="NjM0Nzg2NzM2NjY0NDc3NzA2.XanlNw.gz3P2RL1f_trXeNR4xxFgOY_raA"
 
+test_ch=794872991037128704
+
 youtube_rss_url = [
     'https://www.youtube.com/feeds/videos.xml?channel_id=UCklp1bp2imJmqK40wtTUvwA',#NKRBチャンネル
     'https://www.youtube.com/feeds/videos.xml?channel_id=UC0wBELuVlX1FbfpFRK8XoXg',#mokumeチャンネル
@@ -35,7 +37,7 @@ async def getRSS():
             rss_links[i][1]=rss_reply.entries[1]['link']
             rss_links[i][2]=rss_reply.entries[2]['link']
             me=rss_reply.entries[0]['authors'][0]['name']+"の動画が更新されました\n"+rss_links[i][0]
-            await client.get_channel(794872991037128704).send(me)
+            await client.get_channel(test_ch).send(me)
 
 #起動時
 @client.event
@@ -45,6 +47,6 @@ async def on_ready():
     print('id:',client.user.id)
     await client.change_presence(activity=discord.Game(name="Bot"))
     print('------')
-    await client.get_channel(794872991037128704).send("Hello Discord World (φωφ)")
+    await client.get_channel(test_ch).send("Hello Discord World (φωφ)")
 
 client.run(token)
