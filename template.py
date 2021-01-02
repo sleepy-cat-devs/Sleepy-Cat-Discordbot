@@ -49,6 +49,16 @@ def linksUpdate(links,rss_reply,ch_name):
     for i in range(n):
         links[ch_name][i]=rss_reply.entries[i]['link']
 
+@client.event
+async def on_message(message):
+    #botか否か
+    if message.author.bot:
+        return
+    #このBotがmentionされたか
+    if message.content=='<@!'+str(client.user.id)+'>':
+        me='<@'+str(message.author.id)+'>：眠いからまたあとにしてにゃ'
+        await message.channel.send(me)
+
 
 #起動時
 @client.event
