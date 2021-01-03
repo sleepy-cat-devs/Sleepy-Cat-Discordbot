@@ -71,18 +71,17 @@ async def on_ready():
     await client.change_presence(activity=discord.Game(name="Bot"))
     print('------')
     getRSS.start()
-    #await client.get_channel(test_ch).send("Hello Discord World (φωφ)")
+    await client.get_channel(test_ch).send("Hello Discord World (φωφ)")
 
     rss_reply=feedparser.parse('https://steamcommunity.com/groups/sleepy_cat/rss/')
     ti='['+rss_reply['entries'][0]['title']+']('+rss_reply['entries'][0]['link']+')'
-    print(ti)
-    e=discord.Embed(title='SteamGropeの更新',color=0x000080)
+    e=discord.Embed(title='SteamGropeの更新',description=ti,color=0x000080)
     text=rss_reply['entries'][0]['summary']
     l=re.findall('<div.*?/div>',text)
     text=re.sub(l[0],'',text)
     text=re.sub('<.*?>','',text)
     text=text[0:20]+'...'
-    e.add_field(name=ti,value=text)
+    e.add_field(name=re.sub('<.*?>','',l[0]),value=text)
     await client.get_channel(test_ch).send(embed=e)
 
 client.run(token)
