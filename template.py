@@ -4,6 +4,7 @@ import discord
 from discord.ext import commands
 from discord.ext import tasks
 import feedparser
+import re
 
 client = discord.Client()
 token="NjM0Nzg2NzM2NjY0NDc3NzA2.XanlNw.gz3P2RL1f_trXeNR4xxFgOY_raA"
@@ -49,6 +50,7 @@ def linksUpdate(links,rss_reply,ch_name):
     for i in range(n):
         links[ch_name][i]=rss_reply.entries[i]['link']
 
+
 @client.event
 async def on_message(message):
     #botか否か
@@ -69,6 +71,18 @@ async def on_ready():
     await client.change_presence(activity=discord.Game(name="Bot"))
     print('------')
     getRSS.start()
-    await client.get_channel(test_ch).send("Hello Discord World (φωφ)")
+    #await client.get_channel(test_ch).send("Hello Discord World (φωφ)")
+
+    rss_reply=feedparser.parse('https://steamcommunity.com/groups/sleepy_cat/rss/')
+    ti='['+rss_reply['entries'][0]['title']+']('+rss_reply['entries'][0]['link']+')'
+    print(ti)
+    e=discord.Embed(title='SteamGropeの更新',color=0x000080)
+    text=rss_reply['entries'][0]['summary']
+    l=re.findall('<div.*?/div>',text)
+    text=re.sub(l[0],'',text)
+    text=re.sub('<.*?>','',text)
+    text=text[0:20]+'...'
+    e.add_field(name=ti,value=text)
+    await client.get_channel(test_ch).send(embed=e)
 
 client.run(token)
