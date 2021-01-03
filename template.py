@@ -17,39 +17,60 @@ youtube_chID_dic = {
     'mokume':'UC0wBELuVlX1FbfpFRK8XoXg',#mokumeチャンネル
     'guri':'UCM1VDkI02dK0BV-e8nyYobQ'#guriチャンネル
 }
-rss_links={}
-for ch_name in list(youtube_chID_dic.keys()):
-    rss_links[ch_name]=['']*3
+youtube_Rss_Contents={}
 
-#rss
-first_getRss=True   #起動後初回のgetRSSであるか
+web_Rss_dic={
+    'SteamGroup':'https://steamcommunity.com/groups/sleepy_cat/rss/'
+}
+web_Rss_Contents={}
+
+#YouTubeのrss
 @tasks.loop(seconds=60)
-async def getRSS():
+async def getYouTubeRSS():
     global youtube_chID_dic
-    global rss_links
-    youtube_ch_name=list(youtube_chID_dic.keys())
-    for ch_name in youtube_ch_name:
+    global youtube_Rss_Contents
+    for ch_name in list(youtube_chID_dic.keys()):
         rss_reply=feedparser.parse('https://www.youtube.com/feeds/videos.xml?channel_id='+youtube_chID_dic[ch_name])
-        global first_getRss
-        #チャンネルの動画が1つ以上 and 記録されてない動画 and 最初の1回
-        if len(rss_reply.entries)>0 and not rss_reply.entries[0]['link'] in rss_links[ch_name] and not first_getRss:
-            first_getRss=False
-            me=rss_reply.entries[0]['authors'][0]['name']+"の動画が更新されました\n"+rss_reply.entries[0]['link']
-            await client.get_channel(test_ch).send(me)
-        linksUpdate(rss_links,rss_reply,ch_name)
-        #if rss_links[ch_name][0]=='':#チャンネルに動画が存在してない場合
-        #    print(ch_name,'の動画がないよ')
+        #チャンネルの動画が1つ以上 and 記録されてない動画(最大5本)
+        entLen=len(rss_reply.entries)
+        if entLen>0:
+            for entry in rss_reply.entries[0:min(5,entLen)]:
+                if not entry['link'] in youtube_Rss_Contents[ch_name]:
+                    mes=entry['authors'][0]['name']+'の動画が更新されました\n'+entry['link']
+                    await client.get_channel(test_ch).send(mes)
+        contentsUpdate(youtube_Rss_Contents,rss_reply,ch_name)
 
-#動画が3つ未満の可能性を考慮して動画一覧更新
-def linksUpdate(links,rss_reply,ch_name):
-    n=0
-    if len(rss_reply.entries)>=3:
-        n=3
-    else:
-        n=len(rss_reply.entries)
-    for i in range(n):
-        links[ch_name][i]=rss_reply.entries[i]['link']
+#WebサイトのRSS
+@tasks.loop(seconds=60)
+async def getWebRSS():
+    global web_Rss_dic
+    global web_Rss_Contents
+    for web_link in list(web_Rss_dic.keys()):
+        rss_reply=feedparser.parse(web_Rss_dic[web_link])
+        entLen=len(rss_reply.entries)
+        #記事が1つ以上ある，記録されていない記事(最大5本)
+        if entLen>0:
+            for entry in rss_reply.entries[0:min(5,entLen)]:
+                if not entry['link'] in web_Rss_Contents[web_link]:
+                    title=entry['title']
+                    link='[リンク]('+entry['link']+')'
+                    text=entry['summary']
+                    mes=''
+                    l=re.findall('<div.*?/div>',text)
+                    if len(l)>0:
+                        text=re.sub(l[0],'',text)
+                        l[0]=re.sub('<.*?>','',l[0])
+                        mes+='**'+l[0]+'**\n'
+                    text=re.sub('<.*?>','',text)
+                    mes+=text[0:min(20,len(text))]+'...\n'+link
+                    e=discord.Embed(title=title,description=mes,color=0x000080)
+                    await client.get_channel(test_ch).send(embed=e)
+        contentsUpdate(web_Rss_Contents,rss_reply,web_link)
+    return
 
+#コンテンツ一覧更新
+def contentsUpdate(contents,rss_reply,ch_name):
+    contents[ch_name]=[i['link'] for i in rss_reply.entries]
 
 @client.event
 async def on_message(message):
@@ -61,7 +82,6 @@ async def on_message(message):
         me='<@'+str(message.author.id)+'>：眠いからまたあとにしてにゃ'
         await message.channel.send(me)
 
-
 #起動時
 @client.event
 async def on_ready():
@@ -70,18 +90,15 @@ async def on_ready():
     print('id:',client.user.id)
     await client.change_presence(activity=discord.Game(name="Bot"))
     print('------')
-    getRSS.start()
-    await client.get_channel(test_ch).send("Hello Discord World (φωφ)")
+    for ch_name in list(youtube_chID_dic.keys()):
+        rss_reply=feedparser.parse('https://www.youtube.com/feeds/videos.xml?channel_id='+youtube_chID_dic[ch_name])
+        contentsUpdate(youtube_Rss_Contents,rss_reply,ch_name)
 
-    rss_reply=feedparser.parse('https://steamcommunity.com/groups/sleepy_cat/rss/')
-    ti='['+rss_reply['entries'][0]['title']+']('+rss_reply['entries'][0]['link']+')'
-    e=discord.Embed(title='SteamGropeの更新',description=ti,color=0x000080)
-    text=rss_reply['entries'][0]['summary']
-    l=re.findall('<div.*?/div>',text)
-    text=re.sub(l[0],'',text)
-    text=re.sub('<.*?>','',text)
-    text=text[0:20]+'...'
-    e.add_field(name=re.sub('<.*?>','',l[0]),value=text)
-    await client.get_channel(test_ch).send(embed=e)
+    for web_link in list(web_Rss_dic.keys()):
+        rss_reply=feedparser.parse(web_Rss_dic[web_link])
+        contentsUpdate(web_Rss_Contents,rss_reply,web_link)
+
+    getYouTubeRSS.start()
+    getWebRSS.start()
 
 client.run(token)
