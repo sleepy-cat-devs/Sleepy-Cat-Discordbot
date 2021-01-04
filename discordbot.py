@@ -9,6 +9,9 @@ import re
 client = discord.Client()
 token="NjM0Nzg2NzM2NjY0NDc3NzA2.XanlNw.gz3P2RL1f_trXeNR4xxFgOY_raA"
 
+guild_id=584693499308539917
+guild=None
+
 test_ch=794872991037128704
 
 #YouTubeRSSに使う変数
@@ -74,13 +77,16 @@ def contentsUpdate(contents,rss_reply,ch_name):
 
 @client.event
 async def on_message(message):
+    print(message)
     #botか否か
     if message.author.bot:
         return
-    print(message.content)
+    #print(message)
     #このBotがmentionされたか
     if str(client.user.id)+'>' in message.content or '<@&'+str(792767547388854304)+'>' in message.content:
         me='<@'+str(message.author.id)+'>：眠いからまたあとにしてにゃ'
+        emoji='\N{Yawning Face}'
+        await message.add_reaction(emoji)
         await message.channel.send(me)
 
 #起動時
@@ -101,5 +107,8 @@ async def on_ready():
 
     getYouTubeRSS.start()
     getWebRSS.start()
+
+    global guild,guild_id
+    guild=client.get_guild(guild_id)
 
 client.run(token)
