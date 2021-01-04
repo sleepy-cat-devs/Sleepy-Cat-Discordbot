@@ -77,8 +77,9 @@ async def on_message(message):
     #botか否か
     if message.author.bot:
         return
+    print(message.content)
     #このBotがmentionされたか
-    if '<@!'+str(client.user.id)+'>' in message.content or '<@&'+str(792767547388854304)+'>' in message.content:
+    if str(client.user.id)+'>' in message.content or '<@&'+str(792767547388854304)+'>' in message.content:
         me='<@'+str(message.author.id)+'>：眠いからまたあとにしてにゃ'
         await message.channel.send(me)
 
