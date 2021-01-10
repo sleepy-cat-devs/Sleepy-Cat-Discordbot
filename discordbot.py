@@ -41,7 +41,7 @@ async def getYouTubeRSS():
                 if not entry['link'] in youtube_Rss_Contents[ch_name]:
                     mes=entry['authors'][0]['name']+'の動画が更新されました\n'+entry['link']
                     await client.get_channel(test_ch).send(mes)
-        contentsUpdate(youtube_Rss_Contents,rss_reply,ch_name)
+            contentsUpdate(youtube_Rss_Contents,rss_reply,ch_name)
 
 #WebサイトのRSS
 @tasks.loop(seconds=60)
@@ -68,7 +68,7 @@ async def getWebRSS():
                     mes+=text[0:min(20,len(text))]+'...\n'+link
                     e=discord.Embed(title=title,description=mes,color=0x000080)
                     await client.get_channel(test_ch).send(embed=e)
-        contentsUpdate(web_Rss_Contents,rss_reply,web_link)
+            contentsUpdate(web_Rss_Contents,rss_reply,web_link)
     return
 
 #コンテンツ一覧更新
