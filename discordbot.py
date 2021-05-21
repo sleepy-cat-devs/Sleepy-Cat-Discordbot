@@ -38,6 +38,7 @@ web_Rss_dic={
 }
 web_Rss_Contents={}
 
+"""
 #YouTubeのrss
 @tasks.loop(seconds=60)
 async def getYouTubeRSS():
@@ -84,12 +85,13 @@ async def getWebRSS():
     except:
         me='エラー\n>>> ```'+traceback.format_exc()+'```'
         await client.get_channel(794872991037128704).send(me)
-        
+
     return
 
 #コンテンツ一覧更新
 def contentsUpdate(contents,rss_reply,ch_name):
     contents[ch_name]=[i['link'] for i in rss_reply.entries]
+"""
 
 #コマンドの実行権限の確認
 def isCommander(user):
@@ -107,14 +109,11 @@ async def on_voice_state_update(member,before,after):
     if before.channel!=after.channel and before.channel is None:
         me=member.nick+'が<#'+str(after.channel.id)+'>に参加しました'
         print(me)
-        #slcls
-        #await client.get_channel(631476998652297246).semd(me,tts=True)
-        #bot_test
-        await client.get_channel(794872991037128704).send(me,tts=True if options['VCtts']==1 else False)
+        await client.get_channel(options['chID']['slcls']).send(me,tts=True if options['VCtts']==1 else False)
         return
     if before.self_stream!=after.self_stream and before.self_stream is False:
         me=member.nick+'が<#'+str(after.channel.id)+'>で画面共有を始めました'
-        await client.get_channel(794872991037128704).send(me)
+        await client.get_channel(options['chID']['slcls']).send(me)
         return
 
 
@@ -197,16 +196,16 @@ async def on_ready():
     print('id:',client.user.id)
     await client.change_presence(activity=discord.Game(name="Bot"))
     print('------')
-    for ch_name in list(youtube_chID_dic.keys()):
-        rss_reply=feedparser.parse('https://www.youtube.com/feeds/videos.xml?channel_id='+youtube_chID_dic[ch_name])
-        contentsUpdate(youtube_Rss_Contents,rss_reply,ch_name)
-
-    for web_link in list(web_Rss_dic.keys()):
-        rss_reply=feedparser.parse(web_Rss_dic[web_link])
-        contentsUpdate(web_Rss_Contents,rss_reply,web_link)
-
-    getYouTubeRSS.start()
-    getWebRSS.start()
+    # for ch_name in list(youtube_chID_dic.keys()):
+    #     rss_reply=feedparser.parse('https://www.youtube.com/feeds/videos.xml?channel_id='+youtube_chID_dic[ch_name])
+    #     contentsUpdate(youtube_Rss_Contents,rss_reply,ch_name)
+    #
+    # for web_link in list(web_Rss_dic.keys()):
+    #     rss_reply=feedparser.parse(web_Rss_dic[web_link])
+    #     contentsUpdate(web_Rss_Contents,rss_reply,web_link)
+    #
+    # getYouTubeRSS.start()
+    # getWebRSS.start()
 
     global slc,guild_id
     slc=client.get_guild(options['guild_id'])
