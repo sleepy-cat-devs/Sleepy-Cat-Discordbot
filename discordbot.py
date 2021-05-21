@@ -107,12 +107,14 @@ def isCommander(user):
 async def on_voice_state_update(member,before,after):
     print(member,before,after)
     if before.channel!=after.channel and before.channel is None:
-        me=member.nick+'が<#'+str(after.channel.id)+'>に参加しました'
+        me=member.name if member.nick is None else member.nick
+        me+='が<#'+str(after.channel.id)+'>に参加しました'
         print(me)
-        await client.get_channel(options['chID']['slcls']).send(me,tts=True if options['VCtts']==1 else False)
+        await client.get_channel(options['chID']['slcls']).send(me,tts=['VCtts'])
         return
     if before.self_stream!=after.self_stream and before.self_stream is False:
-        me=member.nick+'が<#'+str(after.channel.id)+'>で画面共有を始めました'
+        me=member.name if member.nick is None else member.nick
+        me+='が<#'+str(after.channel.id)+'>で画面共有を始めました'
         await client.get_channel(options['chID']['slcls']).send(me)
         return
 
