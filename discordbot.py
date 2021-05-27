@@ -216,6 +216,8 @@ async def on_ready():
 
     print(options)
 
+    await client.get_channel(options['chID']['bot-test']).send(client.user.name+'が起動しました')
+
 
 def options_update():
     global options
