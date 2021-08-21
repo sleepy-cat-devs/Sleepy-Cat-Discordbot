@@ -110,7 +110,7 @@ async def on_voice_state_update(member,before,after):
         me=member.name if member.nick is None else member.nick
         me+='が<#'+str(after.channel.id)+'>に参加しました'
         print(me)
-        await client.get_channel(options['chID']['slcls']).send(me,tts=['VCtts'])
+        await client.get_channel(options['chID']['slcls']).send(me,tts=options['VCtts'])
         return
     if before.self_stream!=after.self_stream and before.self_stream is False:
         me=member.name if member.nick is None else member.nick
@@ -128,6 +128,7 @@ async def on_message(message):
             return
         #print(message)
         if isCommander(message.author):
+            #VCtts
             if message.content.startswith('!vctts'):
                 me=message.content
                 me=re.sub('!vctts[ \n]','',me)
@@ -149,6 +150,13 @@ async def on_message(message):
                     await message.channel.send(me)
                 except ValueError:
                     message.channel.send('入力形式が違います')
+            
+            #optionの確認
+            if message.content.startswith('!showoption'):
+                me='```'+str(options)+'```'
+                mem=await client.fetch_user(message.author.id)
+                await mem.send(me)
+                return
 
             if message.content.startswith('!testsend'):
                 me=message.content
