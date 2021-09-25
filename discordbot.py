@@ -1,18 +1,27 @@
-#need to pip install discord , feedparser
+#need to pip install discord
 
-import copy
-from inspect import Traceback
 import discord
-from discord import channel
 from discord.activity import Streaming
 from discord.ext import commands
 from discord.ext import tasks
-import feedparser
+import sys
 import re
 import traceback
 import os
 import json
 from distutils.util import strtobool
+
+isRelease=False
+try: 
+    if sys.argv[1]=='test':
+        isRelease=False
+    elif sys.argv[1]=='release':
+        isRelease=True
+    else:
+        raise Exception
+except:
+    print('リリース状況を正しく入力してください{test/release}')
+    exit(1)
 
 os.chdir(os.path.split(os.path.abspath(__file__))[0])
 
@@ -25,73 +34,22 @@ with open('options.json','r',encoding='utf-8')as f:
 
 slc=None
 
-#YouTubeRSSに使う変数
-youtube_chID_dic = {
-    'NKRB':'UCklp1bp2imJmqK40wtTUvwA',#NKRBチャンネル
-    'mokume':'UC0wBELuVlX1FbfpFRK8XoXg',#mokumeチャンネル
-    'guri':'UCM1VDkI02dK0BV-e8nyYobQ'#guriチャンネル
-}
-youtube_Rss_Contents={}
-
-web_Rss_dic={
-    'SteamGroup':'https://steamcommunity.com/groups/sleepy_cat/rss/'
-}
-web_Rss_Contents={}
-
-"""
-#YouTubeのrss
-@tasks.loop(seconds=60)
-async def getYouTubeRSS():
-    global youtube_chID_dic
-    global youtube_Rss_Contents
-    for ch_name in list(youtube_chID_dic.keys()):
-        rss_reply=feedparser.parse('https://www.youtube.com/feeds/videos.xml?channel_id='+youtube_chID_dic[ch_name])
-        #チャンネルの動画が1つ以上 and 記録されてない動画(最大5本)
-        entLen=len(rss_reply.entries)
-        if entLen>0:
-            for entry in rss_reply.entries[0:min(5,entLen)]:
-                if not entry['link'] in youtube_Rss_Contents[ch_name]:
-                    mes=entry['authors'][0]['name']+'の動画が更新されました\n'+entry['link']
-                    await client.get_channel(options['bot-test']).send(mes)
-            contentsUpdate(youtube_Rss_Contents,rss_reply,ch_name)
-
-#WebサイトのRSS
-@tasks.loop(seconds=60)
-async def getWebRSS():
-    global web_Rss_dic
-    global web_Rss_Contents
-    try:
-        for web_link in list(web_Rss_dic.keys()):
-            rss_reply=feedparser.parse(web_Rss_dic[web_link])
-            entLen=len(rss_reply.entries)
-            #記事が1つ以上ある，記録されていない記事(最大5本)
-            if entLen>0:
-                for entry in rss_reply.entries[0:min(5,entLen)]:
-                    if not entry['link'] in web_Rss_Contents[web_link]:
-                        title=entry['title']
-                        link='[リンク]('+entry['link']+')'
-                        text=entry['summary']
-                        mes=''
-                        l=re.findall('<div.*?/div>',text)
-                        if len(l)>0:
-                            text=re.sub(l[0],'',text)
-                            l[0]=re.sub('<.*?>','',l[0])
-                            mes+='**'+l[0]+'**\n'
-                        text=re.sub('<.*?>','',text)
-                        mes+=text[0:min(20,len(text))]+'...\n'+link
-                        e=discord.Embed(title=title,description=mes,color=0x000080)
-                        await client.get_channel(options['bot-test']).send(embed=e)
-                contentsUpdate(web_Rss_Contents,rss_reply,web_link)
-    except:
-        me='エラー\n>>> ```'+traceback.format_exc()+'```'
-        await client.get_channel(794872991037128704).send(me)
-
+#メッセージ送信
+async def message_send(mes,ch,*istts):
+    if isRelease:
+        if istts is None:
+            await ch.send(mes)
+        else:
+            await ch.send(mes,tts=istts)
+        return
+    else:
+        if istts is None:
+            await client.get_channel(options['chID']['bot-test']).send(mes)
+        else:
+            await client.get_channel(options['chID']['bot-test']).send(mes,tts=istts)
+        return
     return
-
-#コンテンツ一覧更新
-def contentsUpdate(contents,rss_reply,ch_name):
-    contents[ch_name]=[i['link'] for i in rss_reply.entries]
-"""
+        
 
 #コマンドの実行権限の確認
 def isCommander(user):
@@ -103,97 +61,131 @@ def isCommander(user):
             return True
     return False
 
+#通話ステータスの変化を取得するイベント
 @client.event
 async def on_voice_state_update(member,before,after):
-    print(member,before,after)
+    print(member,before,after,sep='\n',end='\n\n')
+    #通話参加時
     if before.channel!=after.channel and before.channel is None:
         me=member.name if member.nick is None else member.nick
         me+='が<#'+str(after.channel.id)+'>に参加しました'
         print(me)
         await client.get_channel(options['chID']['slcls']).send(me,tts=options['VCtts'])
+        mes=member.name if member.nick is None else member.nick
+        mes+='が<#'+str(after.channel.id)+'>に参加しました'
+        print(mes)
+        await message_send(mes,client.get_channel(options['chID'])['slcls'],tts=options['VCtts'])
         return
+    #画面共有開始時
     if before.self_stream!=after.self_stream and before.self_stream is False:
-        me=member.name if member.nick is None else member.nick
-        me+='が<#'+str(after.channel.id)+'>で画面共有を始めました'
-        await client.get_channel(options['chID']['slcls']).send(me)
+        mes=member.name if member.nick is None else member.nick
+        mes+='が<#'+str(after.channel.id)+'>で画面共有を始めました'
+        await message_send(mes,client.get_channel(options['chID'])['slcls'],tts=options['VCtts'])
         return
+    #通話終了時
+    if before.channel!=after.channel and after.channel is None:
+        for vc in slc.voice_channels:
+            if vc.name==before.channel.name and len(vc.members)==0:
+                mes='<#'+str(before.channel.id)+'>の通話が終了しました'
+                await message_send(mes,client.get_channel(options['chID'])['slcls'])
+                break
+        return
+    return
 
 
 @client.event
 async def on_message(message):
-    print(message.content)
     try:
         #botか否か
         if message.author.bot:
             return
-        #print(message)
+        print(message.content)
+        #コマンド使用権限ありのみ
         if isCommander(message.author):
-            #VCtts
             if message.content.startswith('!vctts'):
-                me=message.content
-                me=re.sub('!vctts[ \n]','',me)
-                print('message:',me)
+                mes=message.content
+                mes=re.sub('!vctts[ \n]','',mes)
                 try:
-                    me=bool(strtobool(me))
-                    print(me)
+                    me=bool(strtobool(mes))
                     if me==options['VCtts']:
-                        me='VC参加メッセージのttsは既に'
-                        me+='ON' if options['VCtts'] else 'OFF'
-                        me+='です'
-                        await message.channel.send(me)
+                        mes='VC参加メッセージのttsは既に'
+                        mes+='ON' if options['VCtts'] else 'OFF'
+                        mes+='です'
+                        await message.channel.send(mes)
                         return
-                    options['VCtts']=me
+                    options['VCtts']=mes
                     options_update()
-                    me='VC参加メッセージのttsを'
-                    me+='ON' if options['VCtts'] else 'OFF'
-                    me+='にしました'
-                    await message.channel.send(me)
+                    mes='VC参加メッセージのttsを'
+                    mes+='ON' if options['VCtts'] else 'OFF'
+                    mes+='にしました'
+                    await message.channel.send(mes)
                 except ValueError:
                     message.channel.send('入力形式が違います')
-            
-            #optionの確認
-            if message.content.startswith('!showoption'):
-                me='```'+str(options)+'```'
-                mem=await client.fetch_user(message.author.id)
-                await mem.send(me)
+            #botのニックネーム変更
+            if message.content.startswith('!chnick'):
+                mes=message.content
+                mes=re.sub('!chnick[ \n]','',mes)
+                me=client.get_guild(options['guild_id']).me
+                await me.edit(nick=mes)
+                await message.channel.send('ニックネームを'+mes+'に変更しました')
                 return
-
-            if message.content.startswith('!testsend'):
-                me=message.content
-                me=re.sub('!testsend[ \n]','',me)
-                await client.get_channel(options['chID']['bot-test']).send(me)
+            #botのゲームアクティビティの変更
+            if message.content.startswith('!chgame'):
+                mes=message.content
+                mes=re.sub('!chgame[ \n]','',mes)
+                await client.change_presence(activity=discord.Game(name=mes))
+                await message.channel.send('ステータスアクティビティを変更しました')
                 return
 
             if message.content.startswith('!send'):
-                me=message.content
-                me=re.sub('!send[ \n]','',me)
-                await client.get_channel(584696543278399488).send(me)
-                return
+                try:
+                    mes=message.content
+                    mes=re.sub('!testsend[ \n]','',mes)
+                    mes=re.split('[\n ]',mes,1)
+                    if len(mes)==1:
+                        await message_send(mes[0],options['chID']['random'])
+                    else:
+                        await message_send(mes[1],client.get_channel(int(mes[0])))
+                except:
+                    pass
+                finally:
+                    return
             if message.content.startswith('!mokume'):
-                me=message.content
-                me=re.sub('!mokume[ \n]','',me)
+                mes=message.content
+                mes=re.sub('!mokume[ \n]','',mes)
                 mem=await client.fetch_user(584692942585987090)
-                await mem.send(me)
+                await mem.send(mes)
                 return
             if message.content.startswith('!guri'):
-                me=message.content
-                me=re.sub('!guri[ \n]','',me)
+                mes=message.content
+                mes=re.sub('!guri[ \n]','',mes)
                 mem=await client.fetch_user(371678678142418945)
-                await mem.send(me)
+                await mem.send(mes)
                 return
             if message.content.startswith('!yu'):
-                me=message.content
-                me=re.sub('!yu[ \n]','',me)
+                mes=message.content
+                mes=re.sub('!yu[ \n]','',mes)
                 mem=await client.fetch_user(584693617281728542)
-                await mem.send(me)
+                await mem.send(mes)
                 return
+            return
 
         #このBotがmentionされたか
         if str(client.user.id)+'>' in message.content or '<@&'+str(792767547388854304)+'>' in message.content:
             me='<@'+str(message.author.id)+'>：眠いからまたあとにしてにゃ'
-            emoji='\N{Yawning Face}'
-            await message.add_reaction(emoji)
+            #emoji='\N{Yawning Face}'
+            #await message.add_reaction(emoji)
             await message.channel.send(me)
+            return
+
+        #権限付きコマンドの使用権限の確認
+        if message.content.startswith('!canCommand'):
+            if isCommander(message.author):
+                await message.channel.send(message.author.name+'は権限が必要なコマンドの使用ができます')
+            else:
+                await message.channel.send(message.author.name+'は権限が必要なコマンドの使用ができません')
+            return
+
     except:
         me='エラー\n>>> ```'+traceback.format_exc()+'```'
         await client.get_channel(options['chID']['bot-test']).send(me)
@@ -204,29 +196,20 @@ async def on_ready():
     print('Logged in')
     print('name:',client.user.name)
     print('id:',client.user.id)
-    await client.change_presence(activity=discord.Game(name="Bot"))
+    await client.change_presence(activity=discord.Game(name='Bot'))
     print('------')
-    # for ch_name in list(youtube_chID_dic.keys()):
-    #     rss_reply=feedparser.parse('https://www.youtube.com/feeds/videos.xml?channel_id='+youtube_chID_dic[ch_name])
-    #     contentsUpdate(youtube_Rss_Contents,rss_reply,ch_name)
-    #
-    # for web_link in list(web_Rss_dic.keys()):
-    #     rss_reply=feedparser.parse(web_Rss_dic[web_link])
-    #     contentsUpdate(web_Rss_Contents,rss_reply,web_link)
-    #
-    # getYouTubeRSS.start()
-    # getWebRSS.start()
 
     global slc,guild_id
     slc=client.get_guild(options['guild_id'])
     print('サーバー:',slc)
     print('所有者:',slc.owner)
+    if isRelease is False:
+        await message_send(client.user.name+'(テスト版)が起動しました',client.get_channel(options['chID']['bot-test']))
+    else:
+        await message_send(client.user.name+'(リリース版)が起動しました',client.get_channel(options['chID']['bot-test']))
+    #print(options)
 
-    print(options)
-
-    await client.get_channel(options['chID']['bot-test']).send(client.user.name+'が起動しました')
-
-
+#options.jsonの更新
 def options_update():
     global options
     with open('options.json','w',encoding='utf-8')as f:
