@@ -11,6 +11,9 @@ import os
 import json
 from distutils.util import strtobool
 
+from discord.message import Message
+
+ver_txt='1.1'
 isRelease=False
 try: 
     if sys.argv[1]=='test':
@@ -172,11 +175,14 @@ async def on_message(message):
 
         #このBotがmentionされたか
         if str(client.user.id)+'>' in message.content or '<@&'+str(792767547388854304)+'>' in message.content:
-            me='<@'+str(message.author.id)+'>：眠いからまたあとにしてにゃ'
+            mes='<@'+str(message.author.id)+'>：眠いからまたあとにしてにゃ'
             #emoji='\N{Yawning Face}'
             #await message.add_reaction(emoji)
-            await message.channel.send(me)
+            await message.channel.send(mes)
             return
+
+        if message.content=='!showver':
+            await message.channel.send('ver '+ver_txt)
 
         #権限付きコマンドの使用権限の確認
         if message.content.startswith('!canCommand'):
