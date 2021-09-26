@@ -15,7 +15,7 @@ from discord.message import Message
 
 ver_txt='1.1'
 isRelease=False
-try: 
+try:
     if sys.argv[1]=='test':
         isRelease=False
     elif sys.argv[1]=='release':
@@ -52,7 +52,7 @@ async def message_send(mes,ch,*istts):
             await client.get_channel(options['chID']['bot-test']).send(mes,tts=istts)
         return
     return
-        
+
 
 #コマンドの実行権限の確認
 def isCommander(user):
@@ -77,20 +77,20 @@ async def on_voice_state_update(member,before,after):
         mes=member.name if member.nick is None else member.nick
         mes+='が<#'+str(after.channel.id)+'>に参加しました'
         print(mes)
-        await message_send(mes,client.get_channel(options['chID'])['slcls'],tts=options['VCtts'])
+        await message_send(mes,client.get_channel(options['chID']['slcls']),tts=options['VCtts'])
         return
     #画面共有開始時
     if before.self_stream!=after.self_stream and before.self_stream is False:
         mes=member.name if member.nick is None else member.nick
         mes+='が<#'+str(after.channel.id)+'>で画面共有を始めました'
-        await message_send(mes,client.get_channel(options['chID'])['slcls'],tts=options['VCtts'])
+        await message_send(mes,client.get_channel(options['chID']['slcls']),tts=options['VCtts'])
         return
     #通話終了時
     if before.channel!=after.channel and after.channel is None:
         for vc in slc.voice_channels:
             if vc.name==before.channel.name and len(vc.members)==0:
                 mes='<#'+str(before.channel.id)+'>の通話が終了しました'
-                await message_send(mes,client.get_channel(options['chID'])['slcls'])
+                await message_send(mes,client.get_channel(options['chID']['slcls']))
                 break
         return
     return
