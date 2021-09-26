@@ -12,6 +12,7 @@ from distutils.util import strtobool
 
 from discord.message import Message
 
+# 実行時にバージョン指定
 ver_txt='1.1'
 isRelease=False
 try:
@@ -37,21 +38,21 @@ with open('options.json','r',encoding='utf-8')as f:
 slc=None
 
 #メッセージ送信
-async def message_send(mes,ch,*istts):
+async def message_send(mes,channel,*istts):
     if isRelease:
         if istts is None:
-            await ch.send(mes)
+            await client.get_channel(options['chID'][channel]).send(mes)
         else:
-            await ch.send(mes,tts=istts)
+            await client.get_channel(options['chID'][channel]).send(mes,tts=istts)
         return
     else:
+        mes=channel+":"+mes;
         if istts is None:
             await client.get_channel(options['chID']['bot-test']).send(mes)
         else:
             await client.get_channel(options['chID']['bot-test']).send(mes,tts=istts)
         return
     return
-
 
 #コマンドの実行権限の確認
 def isCommander(user):
@@ -72,18 +73,18 @@ async def on_voice_state_update(member,before,after):
         mes=member.name if member.nick is None else member.nick
         mes+='が<#'+str(after.channel.id)+'>に参加しました'
         if after.channel.id==844511663096463380:
-            await message_send(mes,client.get_channel(options['chID']['bot-test']),options['VCtts'])
+            await message_send(mes,'bot-test',options['VCtts'])
         else:
-            await message_send(mes,client.get_channel(options['chID']['slcls']),options['VCtts'])
+            await message_send(mes,'slcls',options['VCtts'])
         return
     #画面共有開始時
     if before.self_stream!=after.self_stream and before.self_stream is False:
         mes=member.name if member.nick is None else member.nick
         mes+='が<#'+str(after.channel.id)+'>で画面共有を始めました'
         if after.channel.id==844511663096463380:
-            await message_send(mes,client.get_channel(options['chID'])['bot-test'],options['VCtts'])
+            await message_send(mes,'bot-test',options['VCtts'])
         else:
-            await message_send(mes,client.get_channel(options['chID'])['slcls'],options['VCtts'])
+            await message_send(mes,'slcls',options['VCtts'])
         return
     #通話終了時
     if before.channel!=after.channel and after.channel is None:
@@ -91,9 +92,9 @@ async def on_voice_state_update(member,before,after):
             if vc.name==before.channel.name and len(vc.members)==0:
                 mes='<#'+str(before.channel.id)+'>の通話が終了しました'
                 if vc.id==844511663096463380:
-                    await message_send(mes,client.get_channel(options['chID']['bot-test']))
+                    await message_send(mes,'bot-test',options['VCtts'])
                 else:
-                    await message_send(mes,client.get_channel(options['chID']['slcls']))
+                    await message_send(mes,'slcls',options['VCtts'])
                 break
         return
     return
@@ -142,45 +143,45 @@ async def on_message(message):
                 await client.change_presence(activity=discord.Game(name=mes))
                 await message.channel.send('ステータスアクティビティを変更しました')
                 return
-
-            if message.content.startswith('!send'):
-                try:
-                    mes=message.content
-                    mes=re.sub('!testsend[ \n]','',mes)
-                    mes=re.split('[\n ]',mes,1)
-                    if len(mes)==1:
-                        await message_send(mes[0],options['chID']['random'])
-                    else:
-                        await message_send(mes[1],client.get_channel(int(mes[0])))
-                except:
-                    pass
-                finally:
-                    return
-            if message.content.startswith('!mokume'):
-                mes=message.content
-                mes=re.sub('!mokume[ \n]','',mes)
-                mem=await client.fetch_user(584692942585987090)
-                await mem.send(mes)
-                return
-            if message.content.startswith('!guri'):
-                mes=message.content
-                mes=re.sub('!guri[ \n]','',mes)
-                mem=await client.fetch_user(371678678142418945)
-                await mem.send(mes)
-                return
-            if message.content.startswith('!yu'):
-                mes=message.content
-                mes=re.sub('!yu[ \n]','',mes)
-                mem=await client.fetch_user(584693617281728542)
-                await mem.send(mes)
-                return
             return
+
+            # if message.content.startswith('!send'):
+            #     try:
+            #         mes=message.content
+            #         mes=re.sub('!testsend[ \n]','',mes)
+            #         mes=re.split('[\n ]',mes,1)
+            #         if len(mes)==1:
+            #             await message_send(mes[0],'random')
+            #         else:
+            #             await message_send(mes[1],client.get_channel(int(mes[0])))
+            #     except:
+            #         pass
+            #     finally:
+            #         return
+            # if message.content.startswith('!mokume'):
+            #     mes=message.content
+            #     mes=re.sub('!mokume[ \n]','',mes)
+            #     mem=await client.fetch_user(584692942585987090)
+            #     await mem.send(mes)
+            #     return
+            # if message.content.startswith('!guri'):
+            #     mes=message.content
+            #     mes=re.sub('!guri[ \n]','',mes)
+            #     mem=await client.fetch_user(371678678142418945)
+            #     await mem.send(mes)
+            #     return
+            # if message.content.startswith('!yu'):
+            #     mes=message.content
+            #     mes=re.sub('!yu[ \n]','',mes)
+            #     mem=await client.fetch_user(584693617281728542)
+            #     await mem.send(mes)
+            #     return
 
         #このBotがmentionされたか
         if str(client.user.id)+'>' in message.content or '<@&'+str(792767547388854304)+'>' in message.content:
             mes='<@'+str(message.author.id)+'>：眠いからまたあとにしてにゃ'
-            #emoji='\N{Yawning Face}'
-            #await message.add_reaction(emoji)
+            emoji='\N{Yawning Face}'
+            await message.add_reaction(emoji)
             await message.channel.send(mes)
             return
 
@@ -213,9 +214,9 @@ async def on_ready():
     print('サーバー:',slc)
     print('所有者:',slc.owner)
     if isRelease is False:
-        await message_send(client.user.name+'(テスト版)が起動しました',client.get_channel(options['chID']['bot-test']))
+        await message_send(client.user.name+'(テスト版)が起動しました','bot-test')
     else:
-        await message_send(client.user.name+'(リリース版)が起動しました',client.get_channel(options['chID']['bot-test']))
+        await message_send(client.user.name+'(リリース版)が起動しました','bot-test')
     #print(options)
 
 #options.jsonの更新
