@@ -143,6 +143,7 @@ async def on_message(message):
                 await client.change_presence(activity=discord.Game(name=mes))
                 await message.channel.send('ステータスアクティビティを変更しました')
                 return
+            return
 
             # if message.content.startswith('!send'):
             #     try:
@@ -175,7 +176,6 @@ async def on_message(message):
             #     mem=await client.fetch_user(584693617281728542)
             #     await mem.send(mes)
             #     return
-            return
 
         #このBotがmentionされたか
         if str(client.user.id)+'>' in message.content or '<@&'+str(792767547388854304)+'>' in message.content:
