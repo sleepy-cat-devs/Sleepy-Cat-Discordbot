@@ -143,8 +143,6 @@ async def on_message(message):
                 await client.change_presence(activity=discord.Game(name=mes))
                 await message.channel.send('ステータスアクティビティを変更しました')
                 return
-            return
-
             # if message.content.startswith('!send'):
             #     try:
             #         mes=message.content
