@@ -84,7 +84,7 @@ async def on_voice_state_update(member,before,after):
         if after.channel.id==844511663096463380:
             await message_send(mes,'bot-test',options['VCtts'])
         else:
-            await message_send(mes,client.get_channel(options['chID']['slcls']),options['VCtts'])
+            await message_send(mes,'slcls',options['VCtts'])
         return
     #通話終了時
     if before.channel!=after.channel and after.channel is None:
