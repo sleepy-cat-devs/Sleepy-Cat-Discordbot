@@ -1,5 +1,4 @@
 #need to pip install discord
-
 import discord
 from discord.activity import Streaming
 from discord.ext import commands
