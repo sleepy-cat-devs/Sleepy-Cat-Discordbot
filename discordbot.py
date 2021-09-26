@@ -70,27 +70,44 @@ async def on_voice_state_update(member,before,after):
     print(member,before,after,sep='\n',end='\n\n')
     #通話参加時
     if before.channel!=after.channel and before.channel is None:
-        me=member.name if member.nick is None else member.nick
-        me+='が<#'+str(after.channel.id)+'>に参加しました'
-        print(me)
-        await client.get_channel(options['chID']['slcls']).send(me,tts=options['VCtts'])
         mes=member.name if member.nick is None else member.nick
         mes+='が<#'+str(after.channel.id)+'>に参加しました'
+<<<<<<< HEAD
         print(mes)
         await message_send(mes,client.get_channel(options['chID']['slcls']),tts=options['VCtts'])
+=======
+        if after.channel.id==844511663096463380:
+            await message_send(mes,client.get_channel(options['chID']['bot-test']),options['VCtts'])
+        else:
+            await message_send(mes,client.get_channel(options['chID']['slcls']),options['VCtts'])
+>>>>>>> guri
         return
     #画面共有開始時
     if before.self_stream!=after.self_stream and before.self_stream is False:
         mes=member.name if member.nick is None else member.nick
         mes+='が<#'+str(after.channel.id)+'>で画面共有を始めました'
+<<<<<<< HEAD
         await message_send(mes,client.get_channel(options['chID']['slcls']),tts=options['VCtts'])
+=======
+        if after.channel.id==844511663096463380:
+            await message_send(mes,client.get_channel(options['chID'])['bot-test'],options['VCtts'])
+        else:
+            await message_send(mes,client.get_channel(options['chID'])['slcls'],options['VCtts'])
+>>>>>>> guri
         return
     #通話終了時
     if before.channel!=after.channel and after.channel is None:
         for vc in slc.voice_channels:
             if vc.name==before.channel.name and len(vc.members)==0:
                 mes='<#'+str(before.channel.id)+'>の通話が終了しました'
+<<<<<<< HEAD
                 await message_send(mes,client.get_channel(options['chID']['slcls']))
+=======
+                if vc.id==844511663096463380:
+                    await message_send(mes,client.get_channel(options['chID']['bot-test']))
+                else:
+                    await message_send(mes,client.get_channel(options['chID']['slcls']))
+>>>>>>> guri
                 break
         return
     return
