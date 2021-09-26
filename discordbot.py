@@ -1,5 +1,4 @@
 #need to pip install discord
-
 import discord
 from discord.activity import Streaming
 from discord.ext import commands
@@ -15,7 +14,7 @@ from discord.message import Message
 
 ver_txt='1.1'
 isRelease=False
-try: 
+try:
     if sys.argv[1]=='test':
         isRelease=False
     elif sys.argv[1]=='release':
@@ -52,7 +51,7 @@ async def message_send(mes,ch,*istts):
             await client.get_channel(options['chID']['bot-test']).send(mes,tts=istts)
         return
     return
-        
+
 
 #コマンドの実行権限の確認
 def isCommander(user):
