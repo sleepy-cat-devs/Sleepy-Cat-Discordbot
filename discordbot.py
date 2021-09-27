@@ -41,7 +41,6 @@ slc=None
 
 #メッセージ送信
 async def message_send(mes,channel,istts=False):
-    print(istts,options["VCtts"],type(istts))
     if isRelease:
         await client.get_channel(options['chID'][channel]).send(mes,tts=istts)
         return
