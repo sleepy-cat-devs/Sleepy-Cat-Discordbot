@@ -3,14 +3,16 @@ import discord
 from discord.activity import Streaming
 from discord.ext import commands
 from discord.ext import tasks
+from distutils.util import strtobool
+from discord.message import Message
+
+from vcsupport import VCSupport
+
 import sys
 import re
 import traceback
 import os
 import json
-from distutils.util import strtobool
-
-from discord.message import Message
 
 # 実行時にバージョン指定
 ver_txt='1.1'
@@ -38,21 +40,15 @@ with open('options.json','r',encoding='utf-8')as f:
 slc=None
 
 #メッセージ送信
-async def message_send(mes,channel,*istts):
+async def message_send(mes,channel,istts=False):
+    print(istts,options["VCtts"],type(istts))
     if isRelease:
-        if istts is None:
-            await client.get_channel(options['chID'][channel]).send(mes)
-        else:
-            await client.get_channel(options['chID'][channel]).send(mes,tts=istts)
+        await client.get_channel(options['chID'][channel]).send(mes,tts=istts)
         return
     else:
         mes=channel+":"+mes;
-        if istts is None:
-            await client.get_channel(options['chID']['bot-test']).send(mes)
-        else:
-            await client.get_channel(options['chID']['bot-test']).send(mes,tts=istts)
+        await client.get_channel(options['chID']['bot-test']).send(mes,tts=istts)
         return
-    return
 
 #コマンドの実行権限の確認
 def isCommander(user):
@@ -70,8 +66,9 @@ async def on_voice_state_update(member,before,after):
     print(member,before,after,sep='\n',end='\n\n')
     #通話参加時
     if before.channel!=after.channel and before.channel is None:
-        mes=member.name if member.nick is None else member.nick
-        mes+='が<#'+str(after.channel.id)+'>に参加しました'
+        memberDispName=member.name if member.nick is None else member.nick
+        mes=memberDispName+'が<#'+str(after.channel.id)+'>に参加しました'
+        VCSupport.joinVC(after.channel.id,memberDispName)
         if after.channel.id==844511663096463380:
             await message_send(mes,'bot-test',options['VCtts'])
         else:
@@ -90,7 +87,12 @@ async def on_voice_state_update(member,before,after):
     if before.channel!=after.channel and after.channel is None:
         for vc in slc.voice_channels:
             if vc.name==before.channel.name and len(vc.members)==0:
-                mes='<#'+str(before.channel.id)+'>の通話が終了しました'
+                mes='<#'+str(before.channel.id)+'>の通話が終了しました\n'
+                time,members=VCSupport.endVC(before.channel.id)
+                if time != None and members !=None:
+                    mes+="通話時間:"+time[1]+"\n"
+                    mes+="参加人数:"+str(len(members))+"人\n"
+                    mes+="参加者:"+",".join(members)
                 if vc.id==844511663096463380:
                     await message_send(mes,'bot-test',options['VCtts'])
                 else:
@@ -98,7 +100,6 @@ async def on_voice_state_update(member,before,after):
                 break
         return
     return
-
 
 @client.event
 async def on_message(message):
@@ -115,14 +116,14 @@ async def on_message(message):
                 try:
                     me=bool(strtobool(mes))
                     if me==options['VCtts']:
-                        mes='VC参加メッセージのttsは既に'
+                        mes='ボイチャ参加メッセージのttsは既に'
                         mes+='ON' if options['VCtts'] else 'OFF'
                         mes+='です'
                         await message.channel.send(mes)
                         return
-                    options['VCtts']=mes
+                    options['VCtts']=me
                     options_update()
-                    mes='VC参加メッセージのttsを'
+                    mes='ボイチャ参加メッセージのttsを'
                     mes+='ON' if options['VCtts'] else 'OFF'
                     mes+='にしました'
                     await message.channel.send(mes)
@@ -134,14 +135,14 @@ async def on_message(message):
                 mes=re.sub('!chnick[ \n]','',mes)
                 me=client.get_guild(options['guild_id']).me
                 await me.edit(nick=mes)
-                await message.channel.send('ニックネームを'+mes+'に変更しました')
+                await message.channel.send('botのニックネームを'+mes+'に変更しました')
                 return
             #botのゲームアクティビティの変更
             if message.content.startswith('!chgame'):
                 mes=message.content
                 mes=re.sub('!chgame[ \n]','',mes)
                 await client.change_presence(activity=discord.Game(name=mes))
-                await message.channel.send('ステータスアクティビティを変更しました')
+                await message.channel.send('botのステータスアクティビティを変更しました')
                 return
             # if message.content.startswith('!send'):
             #     try:
