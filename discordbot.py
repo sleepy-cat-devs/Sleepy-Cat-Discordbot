@@ -14,8 +14,7 @@ import traceback
 import os
 import json
 
-# 実行時にバージョン指定
-ver_txt='1.1'
+# 実行時に テスト版 or リリース版 を指定
 isRelease=False
 try:
     if sys.argv[1]=='test':
@@ -191,7 +190,7 @@ async def on_message(message):
             return
 
         if message.content=='!showver':
-            await message.channel.send('ver '+ver_txt)
+            await message.channel.send('ver '+options["version"])
 
         #権限付きコマンドの使用権限の確認
         if message.content.startswith('!canCommand'):
