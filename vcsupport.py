@@ -11,7 +11,7 @@ class VCSupport:
     def joinVC(self,channel,member,startTime=None):
         if startTime==None:
             startTime=datetime.datetime.now()
-        if  not channel in self.vcDict.keys():
+        if not channel in self.vcDict.keys():
             self.vcDict[channel]={}
             self.vcDict[channel]["startTime"]=startTime
             self.vcDict[channel]["members"]=[member]

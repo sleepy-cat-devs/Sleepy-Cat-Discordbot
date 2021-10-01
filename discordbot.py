@@ -45,7 +45,7 @@ async def message_send(mes,channel,istts=False):
         await client.get_channel(options['chID'][channel]).send(mes,tts=istts)
         return
     else:
-        mes=channel+":"+mes;
+        mes=channel+":"+mes
         await client.get_channel(options['chID']['bot-test']).send(mes,tts=istts)
         return
 
@@ -86,12 +86,12 @@ async def on_voice_state_update(member,before,after):
     if before.channel!=after.channel and after.channel is None:
         for vc in slc.voice_channels:
             if vc.name==before.channel.name and len(vc.members)==0:
-                mes='<#'+str(before.channel.id)+'>の通話が終了しました\n'
+                mes='<#'+str(before.channel.id)+'>の通話が終了しました\n>>> '
                 time,members=VCSupport.endVC(before.channel.id)
                 if time != None and members !=None:
-                    mes+="通話時間:"+time[1]+"\n"
-                    mes+="参加人数:"+str(len(members))+"人\n"
-                    mes+="参加者:"+",".join(members)
+                    mes+="通話時間："+time[1]+"\n"
+                    mes+="参加人数："+str(len(members))+"人\n"
+                    mes+="参加者："+",".join(members)
                 if vc.id==844511663096463380:
                     await message_send(mes,'bot-test',options['VCtts'])
                 else:
@@ -106,7 +106,14 @@ async def on_message(message):
         #botか否か
         if message.author.bot:
             return
-        print(message.content)
+        print(message)
+        print(message.content,'\n')
+        #test版は#bot-testでのみ反応
+        if not isRelease and message.channel.id!=options['chID']['bot-test']:
+            return
+        #リリース版は#bot-testで反応しない
+        elif isRelease and message.channel.id==options['chID']['bot-test']:
+            return
         #コマンド使用権限ありのみ
         if isCommander(message.author):
             if message.content.startswith('!vctts'):
