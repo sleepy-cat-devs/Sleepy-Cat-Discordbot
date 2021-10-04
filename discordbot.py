@@ -64,7 +64,7 @@ async def on_voice_state_update(member,before,after):
     print(member,before,after,sep='\n',end='\n\n')
     #通話参加時
     if before.channel!=after.channel and before.channel is None:
-        memberDispName=member.name if member.nick is None else member.nick
+        memberDispName=memberDispName(member)
         mes=memberDispName+'が<#'+str(after.channel.id)+'>に参加しました'
         VCSupport.joinVC(after.channel.id,memberDispName)
         if after.channel.id==844511663096463380:
@@ -74,7 +74,7 @@ async def on_voice_state_update(member,before,after):
         return
     #画面共有開始時
     if before.self_stream!=after.self_stream and before.self_stream is False:
-        mes=member.name if member.nick is None else member.nick
+        mes=memberDispName(member)
         mes+='が<#'+str(after.channel.id)+'>で画面共有を始めました'
         if after.channel.id==844511663096463380:
             await message_send(mes,'bot-test',options['VCtts'])
@@ -88,6 +88,10 @@ async def on_voice_state_update(member,before,after):
                 mes='<#'+str(before.channel.id)+'>の通話が終了しました\n>>> '
                 time,members=VCSupport.endVC(before.channel.id)
                 if time != None and members !=None:
+                    print(time)
+                    #参加者が1人か，通話時間が1分未満の場合終了時メッセージは表示しない
+                    if len(members)==1 or (time[0][0]==0 and time[0][1]==0):
+                        return
                     mes+="通話時間："+time[1]+"\n"
                     mes+="参加人数："+str(len(members))+"人\n"
                     mes+="参加者："+",".join(members)
@@ -149,37 +153,6 @@ async def on_message(message):
                 await client.change_presence(activity=discord.Game(name=mes))
                 await message.channel.send('botのステータスアクティビティを変更しました')
                 return
-            # if message.content.startswith('!send'):
-            #     try:
-            #         mes=message.content
-            #         mes=re.sub('!testsend[ \n]','',mes)
-            #         mes=re.split('[\n ]',mes,1)
-            #         if len(mes)==1:
-            #             await message_send(mes[0],'random')
-            #         else:
-            #             await message_send(mes[1],client.get_channel(int(mes[0])))
-            #     except:
-            #         pass
-            #     finally:
-            #         return
-            # if message.content.startswith('!mokume'):
-            #     mes=message.content
-            #     mes=re.sub('!mokume[ \n]','',mes)
-            #     mem=await client.fetch_user(584692942585987090)
-            #     await mem.send(mes)
-            #     return
-            # if message.content.startswith('!guri'):
-            #     mes=message.content
-            #     mes=re.sub('!guri[ \n]','',mes)
-            #     mem=await client.fetch_user(371678678142418945)
-            #     await mem.send(mes)
-            #     return
-            # if message.content.startswith('!yu'):
-            #     mes=message.content
-            #     mes=re.sub('!yu[ \n]','',mes)
-            #     mem=await client.fetch_user(584693617281728542)
-            #     await mem.send(mes)
-            #     return
 
         #このBotがmentionされたか
         if str(client.user.id)+'>' in message.content or '<@&'+str(792767547388854304)+'>' in message.content:
@@ -228,5 +201,12 @@ def options_update():
     global options
     with open('options.json','w',encoding='utf-8')as f:
         json.dump(options,f,indent=4)
+
+#メンバーの表示名を取得
+def memberDispName(member):
+    if member.nick is None:
+        return member.name
+    else:
+        return member.nick
 
 client.run(options['token'])
