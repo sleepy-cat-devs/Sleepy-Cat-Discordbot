@@ -64,7 +64,7 @@ async def on_voice_state_update(member,before,after):
     print(member,before,after,sep='\n',end='\n\n')
     #通話参加時
     if before.channel!=after.channel and before.channel is None:
-        memberDispName=memberDispName(member)
+        memberDispName=memberDisplayName(member)
         mes=memberDispName+'が<#'+str(after.channel.id)+'>に参加しました'
         VCSupport.joinVC(after.channel.id,memberDispName)
         if after.channel.id==844511663096463380:
@@ -74,7 +74,7 @@ async def on_voice_state_update(member,before,after):
         return
     #画面共有開始時
     if before.self_stream!=after.self_stream and before.self_stream is False:
-        mes=memberDispName(member)
+        mes=memberDisplayName(member)
         mes+='が<#'+str(after.channel.id)+'>で画面共有を始めました'
         if after.channel.id==844511663096463380:
             await message_send(mes,'bot-test',options['VCtts'])
@@ -203,7 +203,7 @@ def options_update():
         json.dump(options,f,indent=4)
 
 #メンバーの表示名を取得
-def memberDispName(member):
+def memberDisplayName(member):
     if member.nick is None:
         return member.name
     else:
