@@ -66,7 +66,7 @@ async def on_voice_state_update(member,before,after):
     if before.channel!=after.channel and before.channel is None:
         memberDispName=memberDisplayName(member)
         mes=memberDispName+'が<#'+str(after.channel.id)+'>に参加しました'
-        VCSupport.joinVC(after.channel.id,memberDispName)
+        VCSupport.joinVC(after.channel,member)
         if after.channel.id==844511663096463380:
             await message_send(mes,'bot-test',options['VCtts'])
         else:
@@ -81,25 +81,25 @@ async def on_voice_state_update(member,before,after):
         else:
             await message_send(mes,'slcls',options['VCtts'])
         return
-    #通話終了時
+    #通話退出時
     if before.channel!=after.channel and after.channel is None:
-        for vc in slc.voice_channels:
-            if vc.name==before.channel.name and len(vc.members)==0:
-                mes='<#'+str(before.channel.id)+'>の通話が終了しました\n>>> '
-                time,members=VCSupport.endVC(before.channel.id)
-                if time != None and members !=None:
-                    print(time)
-                    #参加者が1人か，通話時間が1分未満の場合終了時メッセージは表示しない
-                    if len(members)==1 or (time[0][0]==0 and time[0][1]==0):
-                        return
-                    mes+="通話時間："+time[1]+"\n"
-                    mes+="参加人数："+str(len(members))+"人\n"
-                    mes+="参加者："+",".join(members)
-                if vc.id==844511663096463380:
-                    await message_send(mes,'bot-test',options['VCtts'])
-                else:
-                    await message_send(mes,'slcls',options['VCtts'])
-                break
+        if len(before.channel.members)==0:
+            mes='<#'+str(before.channel.id)+'>の通話が終了しました\n>>> '
+            time,members=VCSupport.endVC(before.channel)
+            if time != None and members !=None:
+                print(time)
+                #参加者が1人か，通話時間が1分未満の場合終了時メッセージは表示しない
+                if len(members)==1 or (time[0][0]==0 and time[0][1]==0):
+                    return
+                mes+="通話時間："+time[1]+"\n"
+                mes+="参加人数："+str(len(members))+"人\n"
+                mes+="参加者："+",".join([memberDisplayName(m) for m in members])
+            if before.channel.id==844511663096463380:
+                await message_send(mes,'bot-test',options['VCtts'])
+            else:
+                await message_send(mes,'slcls',options['VCtts'])
+        else:
+            VCSupport.leaveVC(before.channel,member)
         return
     return
 
