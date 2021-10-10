@@ -67,6 +67,8 @@ async def on_voice_state_update(member,before,after):
         memberDispName=memberDisplayName(member)
         mes=memberDispName+'が<#'+str(after.channel.id)+'>に参加しました'
         VCSupport.joinVC(after.channel.id,memberDispName)
+        if len(after.channel.members)==2:#通話人数が2人に増えたのでカウント開始
+            VCSupport.countStart(after.channel.id)
         if after.channel.id==844511663096463380:
             await message_send(mes,'bot-test',options['VCtts'])
         else:
@@ -81,9 +83,11 @@ async def on_voice_state_update(member,before,after):
         else:
             await message_send(mes,'slcls',options['VCtts'])
         return
-    #通話終了時
+    #通話退出時
     if before.channel!=after.channel and after.channel is None:
         for vc in slc.voice_channels:
+            if vc.name==before.channel.name and len(vc.members)==1:#参加人数が一人に減ったのでカウント停止
+                VCSupport.countStop(before.channel.id)
             if vc.name==before.channel.name and len(vc.members)==0:
                 mes='<#'+str(before.channel.id)+'>の通話が終了しました\n>>> '
                 time,members=VCSupport.endVC(before.channel.id)
