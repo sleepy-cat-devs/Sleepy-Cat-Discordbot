@@ -39,20 +39,18 @@ async def on_ready():
     print('------')
 
     global slc,guild_id
-    slc=bot.get_guild(Options.getGuildID())
-    Options.setGuild(slc)
+    slc=bot.get_guild(Options.get_guild_id())
+    Options.set_guild(slc)
     print('サーバー:',slc)
     print('所有者:',slc.owner)
 
     bot.load_extension('vcsupportCog')
-    bot.load_extension('botcommandsCog',end='\n\n')
+    bot.load_extension('botcommandsCog')
     MessagePost.bot=bot
+    print()
 
-    mes=bot.user.name+'('+sys.argv[1]+'版)が起動しました\nver. '+Options.getVersion()
-    if isRelease is False:
-        await MessagePost.message_send(mes,'bot-test')
-    else:
-        await MessagePost.message_send(mes,'bot-test')
+    mes=bot.user.name+'('+sys.argv[1]+'版)が起動しました\n'+'`ver. '+Options.get_version()+'`'
+    await MessagePost.message_send(mes,'bot-test')
     #print(options)
 
-bot.run(Options.getToken())
+bot.run(Options.get_token())

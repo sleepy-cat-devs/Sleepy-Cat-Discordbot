@@ -8,10 +8,10 @@ class MessagePost:
     #メッセージ送信
     @classmethod
     async def message_send(self,mes,channel):
-        if Options.getisRelease():
-            await self.bot.get_channel(Options.getChannelID(channel)).send(mes)
+        if Options.get_is_release():
+            await self.bot.get_channel(Options.get_channel_id(channel)).send(mes)
         else:
             mes=channel+":"+mes
-            await self.bot.get_channel(Options.getChannelID('bot-test')).send(mes)
+            await self.bot.get_channel(Options.get_channel_id('bot-test')).send(mes)
         return
 

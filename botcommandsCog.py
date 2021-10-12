@@ -21,10 +21,10 @@ class BotCommandsCog(commands.Cog):
             print(message)
             print(message.content,'\n')
             #test版は#bot-testでのみ反応
-            if not Options.getisRelease() and message.channel.id!=Options.getChannelID('bot-test'):
+            if not Options.get_is_release() and message.channel.id!=Options.get_channel_id('bot-test'):
                 return
             #リリース版は#bot-testで反応しない
-            elif Options.getisRelease() and message.channel.id==Options.getChannelID('bot-test'):
+            elif Options.get_is_release() and message.channel.id==Options.get_channel_id('bot-test'):
                 return
 
             #このBotがmentionされたか
@@ -36,8 +36,7 @@ class BotCommandsCog(commands.Cog):
                 return
 
         except:
-            mes='エラー\n>>> ```'+traceback.format_exc()+'```'
-            await MessagePost.message_send(mes,'bot-test')
+            await Utility.send_error(traceback.format_exc())
 
     #botのニックネーム変更
     @commands.command()
@@ -47,7 +46,7 @@ class BotCommandsCog(commands.Cog):
         if new_name is None:
             await MessagePost.message_send('botの名前を入力してください',str(ctx.channel.id))
             return
-        me=Options.getGuild().me
+        me=Options.get_guild().me
         await me.edit(nick=new_name)
         await MessagePost.message_send('botのニックネームを'+new_name+'に変更しました',str(ctx.channel.id))
         return
@@ -71,7 +70,7 @@ class BotCommandsCog(commands.Cog):
 
     #権限付きコマンドの使用権限の確認
     @commands.command()
-    async def canCommand(self,ctx):
+    async def cancommand(self,ctx):
         if Utility.is_commander(ctx.author):
             mes=Utility.member_display_name(ctx.author)+'は権限が必要なコマンドの使用ができます'
         else:

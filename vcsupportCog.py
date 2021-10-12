@@ -4,6 +4,7 @@ import datetime
 from discord.ext import commands
 
 from messagepost import MessagePost
+from utility import Utility
 
 class VCSupportCog(commands.Cog):
 
@@ -11,14 +12,14 @@ class VCSupportCog(commands.Cog):
         self.bot=bot
         self.vcDict={}
 
-    try:
-        #通話ステータスの変化を取得するイベント
-        #通話参加時
-        @commands.Cog.listener(name='on_voice_state_update')
-        async def join_vc(self,member,before,after):
+    #通話ステータスの変化を取得するイベント
+    #通話参加時
+    @commands.Cog.listener(name='on_voice_state_update')
+    async def join_vc(self,member,before,after):
+        try:
             print(member,before,after,sep='\n',end='\n\n')
             if before.channel!=after.channel and before.channel is None:
-                memberDispName=MessagePost.memberDisplayName(member)
+                memberDispName=Utility.member_display_name(member)
                 mes=memberDispName+'が<#'+str(after.channel.id)+'>に参加しました'
                 if not after.channel.id in self.vcDict.keys():
                     self.vcDict[after.channel.id]={}
@@ -34,25 +35,30 @@ class VCSupportCog(commands.Cog):
                     await MessagePost.message_send(mes,'bot-test')
                 else:
                     await MessagePost.message_send(mes,'slcls')
-                return
-            return
+        except:
+            Utility.send_error(traceback.format_exc())
+        return
 
-
-        #画面共有開始時
-        @commands.Cog.listener(name='on_voice_state_update')
-        async def share_window(self,member,before,after):
+    #画面共有開始時
+    @commands.Cog.listener(name='on_voice_state_update')
+    async def share_window(self,member,before,after):
+        try:
             if before.self_stream!=after.self_stream and before.self_stream is False:
-                mes=MessagePost.memberDisplayName(member)
+                mes=Utility.member_display_name(member)
                 mes+='が<#'+str(after.channel.id)+'>で画面共有を始めました'
                 if after.channel.id==844511663096463380:
                     await MessagePost.message_send(mes,'bot-test')
                 else:
                     await MessagePost.message_send(mes,'slcls')
-            return
+        except:
+            Utility.send_error(traceback.format_exc())
+        return
 
-        #通話退出時
-        @commands.Cog.listener(name='on_voice_state_update')
-        async def leave_vc(self,member,before,after):
+
+    #通話退出時
+    @commands.Cog.listener(name='on_voice_state_update')
+    async def leave_vc(self,member,before,after):
+        try:
             if before.channel!=after.channel and after.channel is None:
                 if len(before.channel.members)==0:
                     mes='<#'+str(before.channel.id)+'>の通話が終了しました\n>>> '
@@ -66,7 +72,7 @@ class VCSupportCog(commands.Cog):
                             return
                         mes+="通話時間："+time[1]+"\n"
                         mes+="参加人数："+str(len(members))+"人\n"
-                        mes+="参加者："+",".join([MessagePost.memberDisplayName(m) for m in members])
+                        mes+="参加者："+",".join([Utility.member_display_name(m) for m in members])
                     if before.channel.id==844511663096463380:
                         await MessagePost.message_send(mes,'bot-test')
                     else:
@@ -74,12 +80,9 @@ class VCSupportCog(commands.Cog):
                 else:
                     if before.channel.id in self.vcDict.keys() and len(before.channel.id.members)==1:
                         self.vcDict[before.channel.id]["nowTime"]+=datetime.datetime.now()-self.vcDict[before.channel.id]["startTime"]
-
-                return
-            return
-    except:
-        mes='エラー\n>>> ```'+traceback.format_exc()+'```'
-        MessagePost.message_send(mes,'bot-test')
+        except:
+            Utility.send_error(traceback.format_exc())
+        return
 
     # 時分秒に変換，ついでに文字列も
     def __get_h_m_s(td):
