@@ -36,7 +36,7 @@ class VCSupportCog(commands.Cog):
                 else:
                     await MessagePost.message_send(mes,'slcls')
         except:
-            Utility.send_error(traceback.format_exc())
+            await Utility.send_error(traceback.format_exc())
         return
 
     #画面共有開始時
@@ -51,7 +51,7 @@ class VCSupportCog(commands.Cog):
                 else:
                     await MessagePost.message_send(mes,'slcls')
         except:
-            Utility.send_error(traceback.format_exc())
+            await Utility.send_error(traceback.format_exc())
         return
 
 
@@ -81,7 +81,7 @@ class VCSupportCog(commands.Cog):
                     if before.channel.id in self.vcDict.keys() and len(before.channel.id.members)==1:
                         self.vcDict[before.channel.id]["nowTime"]+=datetime.datetime.now()-self.vcDict[before.channel.id]["startTime"]
         except:
-            Utility.send_error(traceback.format_exc())
+            await Utility.send_error(traceback.format_exc())
         return
 
     # 時分秒に変換，ついでに文字列も
