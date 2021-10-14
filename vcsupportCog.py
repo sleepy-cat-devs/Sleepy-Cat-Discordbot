@@ -66,7 +66,7 @@ class VCSupportCog(commands.Cog):
                             return
                         mes+="通話時間："+time[1]+"\n"
                         mes+="参加人数："+str(len(members))+"人\n"
-                        mes+="参加者："+",".join([MessagePost.member_display_name(m) for m in members])
+                        mes+="参加者："+",".join([Utility.member_display_name(m) for m in members])
                     if channel_id==844511663096463380:
                         await MessagePost.message_send(mes,"bot-test")
                     else:
