@@ -32,7 +32,7 @@ class BotCommandsCog(commands.Cog):
                 mes="<@"+str(message.author.id)+">：眠いからまたあとにしてにゃ"
                 emoji="\N{Yawning Face}"
                 await message.add_reaction(emoji)
-                await MessagePost.message_send(mes,str(message.channel.id))
+                await MessagePost.message_send(mes,message.channel)
                 return
 
         except:
@@ -44,11 +44,11 @@ class BotCommandsCog(commands.Cog):
         if not Utility.is_commander(ctx.author):#権限がなければ終了
             return
         if new_name is None:
-            await MessagePost.message_send("botの名前を入力してください",str(ctx.channel.id))
+            await MessagePost.message_send("botの名前を入力してください",ctx.channel)
             return
         me=Options.get_guild().me
         await me.edit(nick=new_name)
-        await MessagePost.message_send("botのニックネームを"+new_name+"に変更しました",str(ctx.channel.id))
+        await MessagePost.message_send("botのニックネームを"+new_name+"に変更しました",ctx.channel)
         return
 
     #botのゲームアクティビティの変更
@@ -57,16 +57,16 @@ class BotCommandsCog(commands.Cog):
         if not Utility.is_commander(ctx.author):#権限がなければ終了
             return
         if new_game is None:
-            await MessagePost.message_send("アクティビティ名を入力してください",str(ctx.channel.id))
+            await MessagePost.message_send("アクティビティ名を入力してください",ctx.channel)
             return
         await self.bot.change_presence(activity=discord.Game(name=new_game))
-        await MessagePost.message_send("botのステータスアクティビティを変更しました",str(ctx.channel.id))
+        await MessagePost.message_send("botのステータスアクティビティを変更しました",ctx.channel)
         return
 
     #botversionの表示
     @commands.command()
     async def showver(self,ctx):
-        await MessagePost.message_send("ver "+Options.options["version"],str(ctx.channel.id))
+        await MessagePost.message_send("ver "+Options.options["version"],ctx.channel)
 
     #権限付きコマンドの使用権限の確認
     @commands.command()
@@ -76,7 +76,7 @@ class BotCommandsCog(commands.Cog):
             mes+="は権限が必要なコマンドの使用ができます"
         else:
             mes+="は権限が必要なコマンドの使用ができません"
-        await MessagePost.message_send(mes,str(ctx.channel.id))
+        await MessagePost.message_send(mes,ctx.channel.id)
         return
 
 def setup(bot):
