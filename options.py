@@ -50,5 +50,7 @@ class Options:
 
     @classmethod
     def get_channel_id(self,chname):
-        return self.options['chID'][chname]
-
+        if chname in self.options["chID"].keys():
+            return self.options['chID'][chname]
+        else:
+            return None
