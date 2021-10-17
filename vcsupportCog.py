@@ -2,6 +2,7 @@ import traceback
 import datetime
 
 from discord.ext import commands
+from options import Options
 
 from utility import Utility
 from messagepost import MessagePost
@@ -17,8 +18,8 @@ class VCSupportCog(commands.Cog):
         #通話参加時
         @commands.Cog.listener(name="on_voice_state_update")
         async def join_vc(self,member,before,after):
-            print(member,before,after,sep="\n",end="\n\n")
-            if before.channel!=after.channel and before.channel is None:
+            if before.channel!=after.channel and not after.channel is None:
+                print(member.name,"join_vc")
                 channel_id=after.channel.id
                 mes=Utility.member_display_name(member)+"が<#"+str(channel_id)+">に参加しました"
                 if not channel_id in self.vcDict.keys():
@@ -42,6 +43,7 @@ class VCSupportCog(commands.Cog):
         @commands.Cog.listener(name="on_voice_state_update")
         async def share_window(self,member,before,after):
             if before.self_stream!=after.self_stream and before.self_stream is False:
+                print(member.name,"start_stream")
                 channel_id=after.channel.id
                 mes=Utility.member_display_name(member)+"が<#"+str(channel_id)+">で画面共有を始めました"
                 if channel_id==844511663096463380:
@@ -53,10 +55,10 @@ class VCSupportCog(commands.Cog):
         #通話退出時
         @commands.Cog.listener(name="on_voice_state_update")
         async def leave_vc(self,member,before,after):
-            if before.channel!=after.channel and after.channel is None:
+            if before.channel!=after.channel and not before.channel is None:
+                print(member.name,"leave_vc")
                 channel_id=before.channel.id
                 if len(before.channel.members)==0:
-                    mes="<#"+str(channel_id)+">の通話が終了しました\n>>> "
                     if channel_id in self.vcDict.keys():
                         vcData=self.vcDict.pop(channel_id)
                         time=self.__get_h_m_s(vcData["nowTime"])
@@ -64,16 +66,16 @@ class VCSupportCog(commands.Cog):
                         #参加者が1人か，通話時間が1分未満の場合終了時メッセージは表示しない
                         if len(members)==1 or (vcData["nowTime"].seconds<60):
                             return
+                        mes="<#"+str(channel_id)+">の通話が終了しました\n>>> "
                         mes+="通話時間："+time[1]+"\n"
                         mes+="参加人数："+str(len(members))+"人\n"
                         mes+="参加者："+",".join([Utility.member_display_name(m) for m in members])
-                    if channel_id==844511663096463380:
-                        await MessagePost.message_send(mes,"bot-test")
-                    else:
-                        await MessagePost.message_send(mes,"slcls")
-                else:
-                    if channel_id in self.vcDict.keys() and len(channel_id.members)==1:
-                        self.vcDict[channel_id]["nowTime"]+=datetime.datetime.now()-self.vcDict[channel_id]["startTime"]
+                        if Options.is_test_voice_cannel(channel_id):
+                            await MessagePost.message_send(mes,"bot-test")
+                        else:
+                            await MessagePost.message_send(mes,"slcls")
+                elif channel_id in self.vcDict.keys() and len(before.channel.members)==1:
+                    self.vcDict[channel_id]["nowTime"]+=datetime.datetime.now()-self.vcDict[channel_id]["startTime"]
 
                 return
             return
