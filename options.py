@@ -56,8 +56,7 @@ class Options:
             return None
 
     @classmethod
-    def is_test_voice_cannel(self,vch_id):
+    def is_test_voice_channel(self,vch_id):
         if vch_id in self.options["vchID"]:
             return True
         return False
-
