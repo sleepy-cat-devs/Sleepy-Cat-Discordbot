@@ -70,7 +70,7 @@ class VCSupportCog(commands.Cog):
                         mes+="通話時間："+time[1]+"\n"
                         mes+="参加人数："+str(len(members))+"人\n"
                         mes+="参加者："+",".join([Utility.member_display_name(m) for m in members])
-                        if Options.is_test_voice_cannel(channel_id):
+                        if Options.is_test_voice_channel(channel_id):
                             await MessagePost.message_send(mes,"bot-test")
                         else:
                             await MessagePost.message_send(mes,"slcls")
