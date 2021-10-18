@@ -32,7 +32,7 @@ class VCSupportCog(commands.Cog):
                 if len(after.channel.members)==2:
                     self.vcDict[channel_id]["startTime"]=datetime.datetime.now()
                 #通話参加メッセージ
-                if channel_id==844511663096463380:
+                if Options.is_test_voice_channel(channel_id):
                     await MessagePost.message_send(mes,"bot-test")
                 else:
                     await MessagePost.message_send(mes,"slcls")
@@ -46,7 +46,7 @@ class VCSupportCog(commands.Cog):
                 print(member.name,"start_stream")
                 channel_id=after.channel.id
                 mes=Utility.member_display_name(member)+"が<#"+str(channel_id)+">で画面共有を始めました"
-                if channel_id==844511663096463380:
+                if Options.is_test_voice_channel(channel_id):
                     await MessagePost.message_send(mes,"bot-test")
                 else:
                     await MessagePost.message_send(mes,"slcls")
