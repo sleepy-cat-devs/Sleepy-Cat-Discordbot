@@ -90,6 +90,7 @@ class VCSupportCog(commands.Cog):
         text=(str(h)+"時間" if h>0 else "")+(str(m)+"分" if m>0 else "")+str(s)+"秒"
         return [(h,m,s),text]
 
+    # チャンネルへの参加通知
     async def __notify(self,mes,channel_id):
         if Options.is_test_voice_channel(channel_id):
             await MessagePost.message_send(mes,"bot-test")
