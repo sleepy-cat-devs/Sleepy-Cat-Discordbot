@@ -50,7 +50,7 @@ class VCSupportCog(commands.Cog):
         async def share_video(self,member,before,after):
             print(before.self_video,after.self_video)
             if after.self_video and not before.self_video:
-                print(member.name,"start_stream")
+                print(member.name,"start_webcam")
                 channel_id=after.channel.id
                 mes=Utility.member_display_name(member)+"が<#"+str(channel_id)+">でWEBカメラをオンにしました"
                 await self.__notify(mes,channel_id)
