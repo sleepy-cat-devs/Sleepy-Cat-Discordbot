@@ -17,12 +17,12 @@ class Options:
     @classmethod
     def set_is_release(self,is_release):
         Options.options["isRelease"]=is_release
-        self._options_update()
+        self.__options_update()
         return
 
     #options.jsonの更新
     @classmethod
-    def _options_update(self):
+    def __options_update(self):
         with open("options.json","w",encoding="utf-8")as f:
             json.dump(Options.options,f,indent=4)
 
