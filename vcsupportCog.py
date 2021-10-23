@@ -32,24 +32,27 @@ class VCSupportCog(commands.Cog):
                 if len(after.channel.members)==2:
                     self.vcDict[channel_id]["startTime"]=datetime.datetime.now()
                 #通話参加メッセージ
-                if Options.is_test_voice_channel(channel_id):
-                    await MessagePost.message_send(mes,"bot-test")
-                else:
-                    await MessagePost.message_send(mes,"slcls")
-                return
+                await self.__notify(mes,channel_id)
             return
 
         #画面共有開始時
         @commands.Cog.listener(name="on_voice_state_update")
         async def share_window(self,member,before,after):
-            if before.self_stream!=after.self_stream and before.self_stream is False:
+            if after.self_stream and not before.self_stream:
                 print(member.name,"start_stream")
                 channel_id=after.channel.id
                 mes=Utility.member_display_name(member)+"が<#"+str(channel_id)+">で画面共有を始めました"
-                if Options.is_test_voice_channel(channel_id):
-                    await MessagePost.message_send(mes,"bot-test")
-                else:
-                    await MessagePost.message_send(mes,"slcls")
+                await self.__notify(mes,channel_id)
+            return
+
+        #カメラ共有開始時
+        @commands.Cog.listener(name="on_voice_state_update")
+        async def share_video(self,member,before,after):
+            if after.self_video and not before.self_video:
+                print(member.name,"start_webcam")
+                channel_id=after.channel.id
+                mes=Utility.member_display_name(member)+"が<#"+str(channel_id)+">でWEBカメラをオンにしました"
+                await self.__notify(mes,channel_id)
             return
 
         #通話退出時
@@ -70,13 +73,9 @@ class VCSupportCog(commands.Cog):
                         mes+="通話時間："+time[1]+"\n"
                         mes+="参加人数："+str(len(members))+"人\n"
                         mes+="参加者："+",".join([Utility.member_display_name(m) for m in members])
-                        if Options.is_test_voice_channel(channel_id):
-                            await MessagePost.message_send(mes,"bot-test")
-                        else:
-                            await MessagePost.message_send(mes,"slcls")
+                        await self.__notify(mes,channel_id)
                 elif channel_id in self.vcDict.keys() and len(before.channel.members)==1:
                     self.vcDict[channel_id]["nowTime"]+=datetime.datetime.now()-self.vcDict[channel_id]["startTime"]
-
                 return
             return
     except:
@@ -89,6 +88,13 @@ class VCSupportCog(commands.Cog):
         h,m=divmod(m,60)
         text=(str(h)+"時間" if h>0 else "")+(str(m)+"分" if m>0 else "")+str(s)+"秒"
         return [(h,m,s),text]
+
+    # チャンネルへの参加通知
+    async def __notify(self,mes,channel_id):
+        if Options.is_test_voice_channel(channel_id):
+            await MessagePost.message_send(mes,"bot-test")
+        else:
+            await MessagePost.message_send(mes,"slcls")
 
 def setup(bot):
     print("load VCSupportCog")
