@@ -48,7 +48,6 @@ class VCSupportCog(commands.Cog):
         #カメラ共有開始時
         @commands.Cog.listener(name="on_voice_state_update")
         async def share_video(self,member,before,after):
-            print(before.self_video,after.self_video)
             if after.self_video and not before.self_video:
                 print(member.name,"start_webcam")
                 channel_id=after.channel.id
