@@ -40,7 +40,7 @@ exports.startup=()=>{
         console.log(this.optionsdir+"guilds_list.json\" is not found")
         fs.writeFileSync(this.optionsdir+"guilds_list.json",JSON.stringify(guild_list,null,2))
     }
-    //サーバーoptionsデータ
+    //サーバーオプション用フォルダの確認
     if(fs.existsSync(this.optionsdir+"guilds/")){ //フォルダの有無
         console.log(this.optionsdir+"guilds/\" is found")
     }else{
@@ -66,8 +66,16 @@ exports.startup=()=>{
             this.guild_data[d[i]]["GUILD_VOICE"][j]["default_textch"]=syschid
         }
     }
+
+    //サーバーオプションデータの出力
     for(let i=0;i<d.length;i++){
-        fs.writeFileSync(this.optionsdir+"guilds/"+d[i]+".json",JSON.stringify(this.guild_data[d[i]],null,2))
+        if(fs.existsSync(this.optionsdir+"guilds/"+d[i]+".json")){
+            console.log(this.optionsdir+"guilds/"+d[i]+".json\" is found")
+        }else{
+            console.log(this.optionsdir+"guilds/"+d[i]+".json\" is not found")
+            fs.writeFileSync(this.optionsdir+"guilds/"+d[i]+".json",JSON.stringify(this.guild_data[d[i]],null,2))
+        }
+        
     }
 }
 
