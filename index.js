@@ -30,6 +30,10 @@ events.forEach(({name, handler}) => client.on(name, handler));
 
 options.optionsdir=require("os").homedir()+"/Documents/Discord_App/Praxi/"
 console.log(options.optionsdir)
+//フォルダの自動生成
+if(!fs.existsSync(options.optionsdir+"guilds/")){
+    fs.mkdirSync(options.optionsdir+"guilds", {recursive:true})
+}
 try {
     const token = fs.readFileSync(options.optionsdir+'token.txt', 'utf8');
     // トークンを使ってDiscordにログイン

@@ -19,6 +19,7 @@ exports.getupdate=()=>{
 }
 
 exports.startup=()=>{
+    
     this.guild_data={}
     //updateデータの読み込み
     this.update = JSON.parse(fs.readFileSync('./update.json', 'utf8'));
@@ -40,13 +41,7 @@ exports.startup=()=>{
         console.log(this.optionsdir+"guilds_list.json\" is not found")
         fs.writeFileSync(this.optionsdir+"guilds_list.json",JSON.stringify(guild_list,null,2))
     }
-    //サーバーオプション用フォルダの確認
-    if(fs.existsSync(this.optionsdir+"guilds/")){ //フォルダの有無
-        console.log(this.optionsdir+"guilds/\" is found")
-    }else{
-        console.log(this.optionsdir+"guilds/\" is not found")
-        fs.writeFileSync(this.optionsdir+"guilds_list.json",JSON.stringify(guild_list,null,2))
-    }
+    
     //サーバーデータの取得
     d=Object.keys(this.guild_data)
     for(let i=0;i<d.length;i++){
