@@ -33,29 +33,39 @@ exports.startup=()=>{
         guild_list.push({"name":d[i][1],"id":d[i][0]})
     }
     //サーバーリストの書き出し
-    if(!fs.existsSync(this.optionsdir+"guilds_list.json")){ //ファイルがなければ
+    if(fs.existsSync(this.optionsdir+"guilds_list.json")){ //ファイルの有無
+        console.log(this.optionsdir+"guilds_list.json\" is found")
+    }else{
+        console.log(this.optionsdir+"guilds_list.json\" is not found")
         fs.writeFileSync(this.optionsdir+"guilds_list.json",JSON.stringify(guild_list,null,2))
-        //サーバーデータの取得
-        d=Object.keys(this.guild_data)
-        for(let i=0;i<d.length;i++){
-            this.guild_data[d[i]]["GUILD_TEXT"]=[]
-            this.guild_data[d[i]]["GUILD_VOICE"]=[]
-            let guild=this.client.guilds.cache.get(d[i])
-            let channels=guild.channels.cache.map(a => [a.type,a.id,a.name])
-            //console.log(channels)
-            for(let j=0;j<channels.length;j++){
-                if(channels[j][0]=="GUILD_TEXT")
-                    this.guild_data[d[i]]["GUILD_TEXT"].push({"ch_id":channels[j][1],"name":channels[j][2]})
-                else if(channels[j][0]=="GUILD_VOICE")
-                    this.guild_data[d[i]]["GUILD_VOICE"].push({"ch_id":channels[j][1],"name":channels[j][2]})
-            }
-            for(let j=0;j<this.guild_data[d[i]]["GUILD_VOICE"].length;j++){
-                this.guild_data[d[i]]["GUILD_VOICE"][j]["default_textch"]=this.guild_data[d[i]]["GUILD_TEXT"][0]
-            }
+    }
+    //サーバーoptionsデータ
+    if(fs.existsSync(this.optionsdir+"guilds/")){ //フォルダの有無
+        console.log(this.optionsdir+"guilds/\" is found")
+    }else{
+        console.log(this.optionsdir+"guilds/\" is not found")
+        fs.writeFileSync(this.optionsdir+"guilds_list.json",JSON.stringify(guild_list,null,2))
+    }
+    //サーバーデータの取得
+    d=Object.keys(this.guild_data)
+    for(let i=0;i<d.length;i++){
+        this.guild_data[d[i]]["GUILD_TEXT"]=[]
+        this.guild_data[d[i]]["GUILD_VOICE"]=[]
+        let guild=this.client.guilds.cache.get(d[i])
+        let channels=guild.channels.cache.map(a => [a.type,a.id,a.name])
+        //console.log(channels)
+        for(let j=0;j<channels.length;j++){
+            if(channels[j][0]=="GUILD_TEXT")
+                this.guild_data[d[i]]["GUILD_TEXT"].push({"ch_id":channels[j][1],"name":channels[j][2]})
+            else if(channels[j][0]=="GUILD_VOICE")
+                this.guild_data[d[i]]["GUILD_VOICE"].push({"ch_id":channels[j][1],"name":channels[j][2]})
         }
-        for(let i=0;i<d.length;i++){
-            fs.writeFileSync(this.optionsdir+"guilds/"+d[i]+".json",JSON.stringify(this.guild_data[d[i]],null,2))
+        for(let j=0;j<this.guild_data[d[i]]["GUILD_VOICE"].length;j++){
+            this.guild_data[d[i]]["GUILD_VOICE"][j]["default_textch"]=this.guild_data[d[i]]["GUILD_TEXT"][0]
         }
+    }
+    for(let i=0;i<d.length;i++){
+        fs.writeFileSync(this.optionsdir+"guilds/"+d[i]+".json",JSON.stringify(this.guild_data[d[i]],null,2))
     }
 }
 
