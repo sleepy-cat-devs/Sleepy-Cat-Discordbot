@@ -28,8 +28,6 @@ options.client=client
 // eventsを全てclientに登録
 events.forEach(({name, handler}) => client.on(name, handler));
 
-//fs.readFileSync('./token.txt', 'utf8')
-
 options.optionsdir=require("os").homedir()+"/Documents/Discord_App/Praxi/"
 console.log(options.optionsdir)
 try {
