@@ -32,12 +32,16 @@ const handler = (message) => {
             e.addField(date,mes,false)
             j--
         }
-        message.channel.send({embeds:[e] })
+        message.channel.send({embeds:[e]})
+        return
     }
 
     //botのニックネーム変更
     
     //メンション時応答
+    if(message.mentions.has(options.client.user.id)){
+        message.channel.send("<@!"+message.member.id+">：眠いからまたあとにしてにゃ")
+    }
 
     //message.channel.send(mes) 
 }
