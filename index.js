@@ -34,18 +34,23 @@ console.log(options.optionsdir)
 if(!fs.existsSync(options.optionsdir+"guilds/")){
     fs.mkdirSync(options.optionsdir+"guilds", {recursive:true})
 }
-try {
-    const token = fs.readFileSync(options.optionsdir+'token.txt', 'utf8');
+//tokenファイルの有無確認
+if(!fs.existsSync(options.optionsdir+"token")){
+    fs.writeFileSync(options.optionsdir+"token","")
+    console.log("\"options.optionsdir+'token\" に token を入力してください")
+    process.exit()
+}else{
+    const token = fs.readFileSync(options.optionsdir+'token', 'utf8');
     // トークンを使ってDiscordにログイン
     client.login(token);
+}
+
+/*
+try {
+    
 } catch (e) {
     if (e.fileName && e.lineNumber) {
         // ファイル名と行番号が取得できたらメッセージとしてログに出力する
         let errMsg = "file: " + e.fileName + "line: " + e.lineNumber
         console.error(`${errMsg}`)
-    }
-    if(e instanceof Error && e.code==='ENOENT'){
-        console.error(`no such file.\nmake file "${options.optionsdir}token.txt"`)
-        process.exit(1)
-    }
-}
+    }*/
