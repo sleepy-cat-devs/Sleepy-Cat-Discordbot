@@ -22,11 +22,11 @@ console.log(options.isrelease)
 
 // 新しいDiscordクライアントを作成
 const { Client, Intents } = require('discord.js');
-const client = new Client({ intents: [Intents.FLAGS.GUILDS,Intents.FLAGS.GUILD_MEMBERS,Intents.FLAGS.GUILD_MESSAGES,Intents.FLAGS.DIRECT_MESSAGES,Intents.FLAGS.GUILD_MESSAGE_REACTIONS,Intents.FLAGS.GUILD_VOICE_STATES] });
+const client = new Client({ intents: [Intents.FLAGS.GUILDS,Intents.FLAGS.GUILD_MEMBERS,Intents.FLAGS.GUILD_MESSAGES,Intents.FLAGS.DIRECT_MESSAGES,Intents.FLAGS.GUILD_MESSAGE_REACTIONS,Intents.FLAGS.GUILD_VOICE_STATES] })
 options.client=client
 
 // eventsを全てclientに登録
-events.forEach(({name, handler}) => client.on(name, handler));
+events.forEach(({name, handler}) => client.on(name, handler))
 
 options.optionsdir=require("os").homedir()+"/Documents/Discord_App/Praxi/"
 console.log(options.optionsdir)
@@ -40,14 +40,14 @@ if(!fs.existsSync(options.optionsdir+"token")){
     console.log("\"options.optionsdir+'token\" に token を入力してください")
     process.exit()
 }else{
-    const token = fs.readFileSync(options.optionsdir+'token', 'utf8');
+    const token = fs.readFileSync(options.optionsdir+'token', 'utf8')
     // トークンを使ってDiscordにログイン
-    client.login(token);
+    client.login(token)
 }
 
 /*
 try {
-    
+
 } catch (e) {
     if (e.fileName && e.lineNumber) {
         // ファイル名と行番号が取得できたらメッセージとしてログに出力する

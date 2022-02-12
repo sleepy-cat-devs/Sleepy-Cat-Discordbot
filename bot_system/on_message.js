@@ -5,19 +5,19 @@ const Discord=require("discord.js")
 const options=require("./options.js")
 
 const handler = (message) => {
-    if (message.author.bot==true)
-        return;
-    let mes=`${message.author.tag} in #${message.channel.name} sent: ${message.content}`;
-	console.log(mes);
+    if (message.author.bot)
+        return
+    let mes=`${message.author.tag} in #${message.channel.name} sent: ${message.content}`
+	console.log(mes)
 
     //update内容の表示
     if(message.content === "!update"){
         const update=options.getupdate()
         if (update.length==0)
-            return;
+            return
         const e=new Discord.MessageEmbed()
             .setTitle("update内容")
-            .setThumbnail("https://cdn.discordapp.com/app-icons/792685330797035541/6e19686a568c234f74fc78828a749345.png?size=64")
+            .setThumbnail("https://cdn.discordapp.com/app-icons/634786736664477706/12d661873400eb964fb20a6447732488.png?size=64")
         let j=3;
         for(let i=Math.max(0,update.length-3);i<update.length;i++){
             if (j==0)
@@ -37,13 +37,13 @@ const handler = (message) => {
     }
 
     //botのニックネーム変更
-    
+
     //メンション時応答
     if(message.mentions.has(options.client.user.id)){
         message.channel.send("<@!"+message.member.id+">：眠いからまたあとにしてにゃ")
     }
 
-    //message.channel.send(mes) 
+    //message.channel.send(mes)
 }
 
 module.exports = {name, handler}

@@ -20,15 +20,15 @@ exports.getupdate=()=>{
 }
 
 exports.startup=()=>{
-    
+
     this.guild_data={}
     //updateデータの読み込み
-    this.update = JSON.parse(fs.readFileSync('./update.json', 'utf8'));
+    this.update = JSON.parse(fs.readFileSync('./update.json', 'utf8'))
     this.update=this.update["data"]
 
     let d=this.client.guilds.cache.map(a => [a.id,a.name])
     let guild_list=[]
-    
+
     for(let i=0;i<d.length;i++){
         this.guild_data[d[i][0]]={"guild_name":d[i][1]}
     }
@@ -42,15 +42,15 @@ exports.startup=()=>{
         console.log(this.optionsdir+"guilds_list.json\" is not found")
         fs.writeFileSync(this.optionsdir+"guilds_list.json",JSON.stringify(guild_list,null,2))
     }
-    
+
     //サーバーデータの取得
     d=Object.keys(this.guild_data)
     for(let i=0;i<d.length;i++){
         //サーバーオプションデータの出力、データ取得済みチャンネルはパス
         if(fs.existsSync(this.optionsdir+"guilds/"+d[i]+".json")){
             console.log(this.optionsdir+"guilds/"+d[i]+".json\" is found")
-            this.guild_data[d[i]]=JSON.parse(fs.readFileSync(this.optionsdir+"guilds/"+d[i]+".json", 'utf8'));
-            console.log(this.guild_data)
+            this.guild_data[d[i]]=JSON.parse(fs.readFileSync(this.optionsdir+"guilds/"+d[i]+".json", 'utf8'))
+            //console.log(this.guild_data)
             break
         }else{
             console.log(this.optionsdir+"guilds/"+d[i]+".json\" is not found")
@@ -71,7 +71,7 @@ exports.startup=()=>{
             }
             fs.writeFileSync(this.optionsdir+"guilds/"+d[i]+".json",JSON.stringify(this.guild_data[d[i]],null,2))
         }
-        
+
     }
 }
 
