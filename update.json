@@ -1,11 +1,10 @@
 {
-    "data": [
-        {
-            "date":[2022,2,6],
-            "text":[
-                "discordjs版始動"]
-            }
-        
-        
+    "data": [{
+            "date": [2022, 2, 6],
+            "text": [
+                "discordjs版始動"
+            ]
+        }
+
     ]
 }
