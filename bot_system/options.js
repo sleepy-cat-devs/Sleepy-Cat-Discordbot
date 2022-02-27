@@ -23,7 +23,7 @@ exports.startup = () => {
 
     this.guild_data = {}
     //updateデータの読み込み
-    this.update = JSON.parse(fs.readFileSync('./update.json', 'utf8'))
+    this.update = JSON.parse(fs.readFileSync("./update.json", "utf8"))
     this.update = this.update["data"]
 
     let d = this.client.guilds.cache.map(a => [a.id, a.name])
@@ -54,7 +54,7 @@ exports.startup = () => {
         //サーバーオプションデータの出力、データ取得済みチャンネルはパス
         if (fs.existsSync(this.optionsdir + "guilds/" + d[i] + ".json")) {
             console.log(this.optionsdir + "guilds/" + d[i] + ".json\" is found")
-            this.guild_data[d[i]] = JSON.parse(fs.readFileSync(this.optionsdir + "guilds/" + d[i] + ".json", 'utf8'))
+            this.guild_data[d[i]] = JSON.parse(fs.readFileSync(this.optionsdir + "guilds/" + d[i] + ".json", "utf8"))
             //console.log(this.guild_data)
             break
         } else {

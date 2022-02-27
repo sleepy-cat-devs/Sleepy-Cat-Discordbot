@@ -10,7 +10,7 @@ const handler = () => {
     console.log("id:", options.client.user.id)
     console.log("version:", options.version)
     console.log("-----------------------------------------------")
-    console.log('bot is online');
+    console.log("bot is online");
 }
 
 module.exports = {

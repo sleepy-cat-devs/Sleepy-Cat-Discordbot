@@ -23,7 +23,7 @@ console.log(options.isrelease)
 const {
     Client,
     Intents
-} = require('discord.js');
+} = require("discord.js");
 const client = new Client({
     intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.DIRECT_MESSAGES, Intents.FLAGS.GUILD_MESSAGE_REACTIONS, Intents.FLAGS.GUILD_VOICE_STATES]
 })
@@ -46,10 +46,10 @@ if (!fs.existsSync(options.optionsdir + "guilds/")) {
 //tokenファイルの有無確認
 if (!fs.existsSync(options.optionsdir + "token")) {
     fs.writeFileSync(options.optionsdir + "token", "")
-    console.log("\"options.optionsdir+'token\" に token を入力してください")
+    console.log("\"options.optionsdir/token\" に token を入力してください")
     process.exit()
 } else {
-    const token = fs.readFileSync(options.optionsdir + 'token', 'utf8')
+    const token = fs.readFileSync(options.optionsdir + "token", "utf8")
     // トークンを使ってDiscordにログイン
     client.login(token)
 }
