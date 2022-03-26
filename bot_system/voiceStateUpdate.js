@@ -6,13 +6,19 @@ const messagepost = require("./messagepost.js")
 const handler = (oldStatus, newStatus) => {
     console.log("change voice status")
     //ボイチャ参加
-    if (oldStatus.channel != newStatus.channel && oldStatus.channel == null) {
-        const channel = options.getvoicedefaultchannel(newStatus.guild["id"], newStatus.channelId)
-        messagepost.send_message(channel, `${newStatus.member.displayName} が ${newStatus.channel} に参加しました`)
+    if (oldStatus.channel != newStatus.channel){
+        if(newStatus.channel != null) {
+            const channel=getVoiceDefaultChannel(newStatus)
+            messagepost.send_message(channel, `${newStatus.member.displayName} が ${newStatus.channel} に参加しました`)
+        }
+        if(oldStatus.channel != null){
+            const channel=getVoiceDefaultChannel(oldStatus)
+            messagepost.send_message(channel, `${oldStatus.member.displayName} が ${oldStatus.channel} から退出しました`)
+        }
     }
     //画面共有の開始
     if (oldStatus.streaming != newStatus.streaming && newStatus.streaming) {
-        const channel = options.getvoicedefaultchannel(newStatus.guild["id"], newStatus.channelId)
+        const channel=getVoiceDefaultChannel(newStatus)
         messagepost.send_message(channel, `${newStatus.member.displayName} が ${newStatus.channel} で画面共有を開始しました`)
         //console.dir(newStatus.member,{depth:3})
     }
@@ -27,13 +33,16 @@ const handler = (oldStatus, newStatus) => {
     }
     //カメラ共有の開始
     if (oldStatus.selfVideo != newStatus.selfVideo && newStatus.selfVideo) {
-        const channel = options.getvoicedefaultchannel(newStatus.guild["id"], newStatus.channelId)
+        const channel=getVoiceDefaultChannel(newStatus)
         messagepost.send_message(channel, `${newStatus.member.displayName} が ${newStatus.channel} でカメラ共有を開始しました`)
     }
-
 }
 
 module.exports = {
     name,
     handler
+}
+
+function getVoiceDefaultChannel(status){
+    return options.getvoicedefaultchannel(status.guild["id"],status.channelId)
 }
