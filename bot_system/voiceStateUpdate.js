@@ -44,6 +44,17 @@ function __getVoiceDefaultChannel(status){
 
 let vcDict=new Object();
 
+/*
+{
+    ボイチャチャンネルID（数字列）:{
+        members (Setオブジェクト 重複なし):{}
+        startTime:VCの開始時間
+        vcBeginTime:2名以上が参加した時刻
+        totalTime:2名以上のボイチャが継続された時間
+    }
+}
+*/
+
 function __join_vc(status){
     messagepost.send_message(
         __getVoiceDefaultChannel(status),
@@ -51,7 +62,7 @@ function __join_vc(status){
     if(String(status.channelId) in vcDict){
         vcDict[status.channelId].members.add(status.member.id)
         if(status.channel.members.size ==2){
-            vcDict[status.channelId].startTime=new Date()
+            vcDict[status.channelId].vcBeginTime=new Date()
         }
     }else{
         let entry=new Object();
@@ -67,17 +78,19 @@ function __leave_vc(status){
     if(String(status.channelId) in vcDict){
         let entry=vcDict[status.channelId]
         if(status.channel.members.size==0){
-            //entry.totalTime=new Date()-entry.startTime
-            console.log(entry.totalTime)
-            console.log(__getHMS(entry.totalTime))
-            console.log(vcDict)
             let mes=`${status.channel}の通話が終了しました\n>>>`
             mes+=`通話時間${__getHMS(entry.totalTime)}\n`
-            mes+=`参加人数:${entry.members.size}`
-            //mes+=`` //TODO:参加者の名前を一覧で表示
+            mes+=`参加人数:${entry.members.size}\n`
+            mes+="参加者:"
+            membersArray=Array.from(entry.members)
+            membersArray.forEach(member => {
+                console.log(member)
+                console.log(status.guild.members.cache.get(member).displayName)
+                mes+=status.guild.members.cache.get(member).displayName+(member!=membersArray[membersArray.length-1]?", ":"")
+            });
             messagepost.send_message(__getVoiceDefaultChannel(status),mes)
         }else if(status.channel.members.size==1){
-            entry.totalTime+=new Date()-entry.startTime
+            entry.totalTime+=new Date()-entry.vcBeginTime
         }
     }
 }
