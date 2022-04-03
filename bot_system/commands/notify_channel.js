@@ -32,7 +32,7 @@ options.client.on("interactionCreate", async (interaction) => {
                         textch_id = interaction.options._hoistedOptions[0].channel.id
                     }
                     options.guild_data[interaction.guildId]["GUILD_VOICE"][i]["default_textchid"] = textch_id
-                    //options.guild_data_update(interaction.guildId)
+                    options.guild_data_update(interaction.guildId)
                     interaction.reply("<#" + invcid + "> の通知チャンネルを <#" + textch_id + "> に変更しました")
                     return
                 }
