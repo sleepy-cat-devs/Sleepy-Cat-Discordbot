@@ -78,17 +78,21 @@ function __leave_vc(status){
     if(String(status.channelId) in vcDict){
         let entry=vcDict[status.channelId]
         if(status.channel.members.size==0){
-            let mes=`${status.channel}の通話が終了しました\n>>>`
-            mes+=`通話時間${__getHMS(entry.totalTime)}\n`
-            mes+=`参加人数:${entry.members.size}\n`
-            mes+="参加者:"
-            membersArray=Array.from(entry.members)
-            membersArray.forEach(member => {
-                console.log(member)
-                console.log(status.guild.members.cache.get(member).displayName)
-                mes+=status.guild.members.cache.get(member).displayName+(member!=membersArray[membersArray.length-1]?", ":"")
-            });
-            messagepost.send_message(__getVoiceDefaultChannel(status),mes)
+            if(entry.members.size>=2){
+                console.log(entry.totalTime)
+                console.log(__getHMS(entry.totalTime))
+                let mes=`${status.channel}の通話が終了しました\n>>> `
+                mes+=`通話時間:${__getHMS(entry.totalTime)}\n`
+                mes+=`参加人数:${entry.members.size}人\n`
+                mes+="参加者:"
+                membersArray=Array.from(entry.members)
+                membersArray.forEach(member => {
+                    console.log(member)
+                    console.log(status.guild.members.cache.get(member).displayName)
+                    mes+=status.guild.members.cache.get(member).displayName+(member!=membersArray[membersArray.length-1]?", ":"")
+                });
+                messagepost.send_message(__getVoiceDefaultChannel(status),mes)
+            }
         }else if(status.channel.members.size==1){
             entry.totalTime+=new Date()-entry.vcBeginTime
         }
