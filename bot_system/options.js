@@ -27,7 +27,7 @@ exports.startup = () => {
     this.update = this.update["data"]
 
     let d = this.client.guilds.cache.map(a => [a.id, a.name])
-    let guild_list = []
+    guild_list = []
 
     for (let i = 0; i < d.length; i++) {
         this.guild_data[d[i][0]] = {
@@ -87,4 +87,8 @@ exports.startup = () => {
 
 exports.getGuildlist = () => {
     return guild_list
+}
+
+exports.guild_data_update = (guild_id) => {
+    fs.writeFileSync(this.optionsdir + "guilds/" + String(guild_id) + ".json", JSON.stringify(this.guild_data[guild_id], null, 2))
 }
