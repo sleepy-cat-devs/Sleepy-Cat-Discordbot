@@ -1,4 +1,5 @@
 const options = require("./options")
+const commands = require("./commands")
 const name = 'ready'
 
 const handler = () => {
@@ -11,6 +12,14 @@ const handler = () => {
     console.log("version:", options.version)
     console.log("-----------------------------------------------")
     console.log("bot is online");
+
+    set_commands()
+}
+
+async function set_commands() {
+    for (const guild_d of options.getGuildlist()) {
+        await options.client.application.commands.set(commands.getCommands(), guild_d["id"])
+    }
 }
 
 module.exports = {

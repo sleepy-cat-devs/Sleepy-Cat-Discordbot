@@ -82,6 +82,9 @@ exports.startup = () => {
             }
             fs.writeFileSync(this.optionsdir + "guilds/" + d[i] + ".json", JSON.stringify(this.guild_data[d[i]], null, 2))
         }
-
     }
+}
+
+exports.getGuildlist = () => {
+    return guild_list
 }
