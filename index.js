@@ -1,12 +1,10 @@
 const Discord = require("discord.js");
 const fs = require("fs")
 
-const events = require("./event.js")
+const events = require("./event")
 const options = require("./bot_system/options")
 
 process.chdir(__dirname)
-
-options.version = "1.0.0"
 
 if (process.argv.length == 3) {
     if (["true", "release"].includes(process.argv[2]))
@@ -46,7 +44,7 @@ if (!fs.existsSync(options.optionsdir + "guilds/")) {
 //tokenファイルの有無確認
 if (!fs.existsSync(options.optionsdir + "token")) {
     fs.writeFileSync(options.optionsdir + "token", "")
-    console.log("\"options.optionsdir/token\" に token を入力してください")
+    console.log("\"" + options.optionsdir + "/token\" に token を入力してください")
     process.exit()
 } else {
     const token = fs.readFileSync(options.optionsdir + "token", "utf8")
