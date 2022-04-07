@@ -2,7 +2,7 @@ const name = 'messageCreate'
 
 const Discord = require("discord.js")
 
-const options = require("./options.js")
+const options = require("./options")
 
 const handler = (message) => {
     if (message.author.bot)
