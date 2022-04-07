@@ -1,8 +1,9 @@
 {
     "data": [{
-            "date": [2022, 2, 6],
+            "ver": "3.0",
+            "date": [2022, 4, 7],
             "text": [
-                "discordjs版始動"
+                "discordjs版リリース"
             ]
         }
 

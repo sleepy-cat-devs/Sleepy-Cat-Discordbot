@@ -92,3 +92,7 @@ exports.getGuildlist = () => {
 exports.guild_data_update = (guild_id) => {
     fs.writeFileSync(this.optionsdir + "guilds/" + String(guild_id) + ".json", JSON.stringify(this.guild_data[guild_id], null, 2))
 }
+
+exports.getVersion = () => {
+    return this.update[0]["ver"]
+}
