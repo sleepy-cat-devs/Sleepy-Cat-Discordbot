@@ -1,11 +1,14 @@
 // events.js
+const fs = require('fs')
 
-// イベント
-const events = [
-    require("./events/on_ready.js"),
-    require("./events/on_message.js"),
-    require("./events/voiceStateUpdate.js"),
-    require("./events/channelCreate.js")
-]
+events_data = []
 
-module.exports = events
+
+fs.readdirSync(__dirname + '/events').forEach(file => {
+    //console.log(file)
+    events_data.push(require("./events/" + file))
+})
+console.log("list:", events_data)
+
+
+module.exports = events_data

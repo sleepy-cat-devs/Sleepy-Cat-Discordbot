@@ -1,6 +1,3 @@
-const {
-    Options
-} = require("discord.js")
 const fs = require("fs")
 
 exports.version
@@ -9,7 +6,7 @@ exports.client
 exports.optionsdir
 
 exports.getvoicedefaultchannel = (guildid, channelid) => {
-    console.log(guildid, channelid)
+    //console.log(guildid, channelid)
     for (const vc_ch of this.guild_data[guildid]["GUILD_VOICE"]) {
         if (vc_ch["ch_id"] == channelid) {
             const ch = this.client.channels.cache.get(vc_ch["default_textchid"])
