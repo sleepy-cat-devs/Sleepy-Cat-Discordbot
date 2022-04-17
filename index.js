@@ -1,7 +1,7 @@
 const Discord = require("discord.js");
 const fs = require("fs")
 
-const events = require("./event")
+const events = require("./bot_system/event")
 const options = require("./bot_system/options")
 
 process.chdir(__dirname)

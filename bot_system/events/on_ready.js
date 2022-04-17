@@ -1,5 +1,5 @@
-const options = require("./options")
-const commands = require("./commands")
+const options = require("../options")
+const commands = require("../commands")
 const name = 'ready'
 
 const handler = () => {

@@ -1,3 +1,6 @@
+const {
+    Options
+} = require("discord.js")
 const fs = require("fs")
 
 exports.version
@@ -95,4 +98,16 @@ exports.guild_data_update = (guild_id) => {
 
 exports.getVersion = () => {
     return this.update[0]["ver"]
+}
+
+exports.channelCreate = (type, channel) => {
+    let ch_data = {}
+    ch_data["ch_id"] = channel.id
+    ch_data["name"] = channel.name
+    if (type == "GUILD_VOICE") {
+        ch_data["default_textchid"] = channel.guild.systemChannelId
+    }
+    //console.log(ch_data)
+    this.guild_data[channel.guildId][type].push(ch_data)
+    this.guild_data_update(channel.guildId)
 }
