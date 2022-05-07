@@ -1,7 +1,7 @@
 const name = 'voiceStateUpdate'
-const options = require("./options")
+const options = require("../options")
 
-const messagepost = require("./messagepost")
+const messagepost = require("../messagepost")
 
 const handler = (oldStatus, newStatus) => {
     console.log("change voice status")

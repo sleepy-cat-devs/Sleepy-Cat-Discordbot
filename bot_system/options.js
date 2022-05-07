@@ -6,7 +6,7 @@ exports.client
 exports.optionsdir
 
 exports.getvoicedefaultchannel = (guildid, channelid) => {
-    console.log(guildid, channelid)
+    //console.log(guildid, channelid)
     for (const vc_ch of this.guild_data[guildid]["GUILD_VOICE"]) {
         if (vc_ch["ch_id"] == channelid) {
             const ch = this.client.channels.cache.get(vc_ch["default_textchid"])
@@ -95,4 +95,16 @@ exports.guild_data_update = (guild_id) => {
 
 exports.getVersion = () => {
     return this.update[0]["ver"]
+}
+
+exports.channelCreate = (type, channel) => {
+    let ch_data = {}
+    ch_data["ch_id"] = channel.id
+    ch_data["name"] = channel.name
+    if (type == "GUILD_VOICE") {
+        ch_data["default_textchid"] = channel.guild.systemChannelId
+    }
+    //console.log(ch_data)
+    this.guild_data[channel.guildId][type].push(ch_data)
+    this.guild_data_update(channel.guildId)
 }
