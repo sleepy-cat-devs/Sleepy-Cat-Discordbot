@@ -56,7 +56,6 @@ exports.startup = () => {
             console.log(this.optionsdir + "guilds/" + d[i] + ".json\" is found")
             this.guild_data[d[i]] = JSON.parse(fs.readFileSync(this.optionsdir + "guilds/" + d[i] + ".json", "utf8"))
             //console.log(this.guild_data)
-            break
         } else {
             console.log(this.optionsdir + "guilds/" + d[i] + ".json\" is not found")
             this.guild_data[d[i]]["GUILD_TEXT"] = []
