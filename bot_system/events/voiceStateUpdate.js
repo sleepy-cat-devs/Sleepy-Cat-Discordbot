@@ -92,6 +92,7 @@ function __leave_vc(status) {
                     mes += status.guild.members.cache.get(member).displayName + (member != membersArray[membersArray.length - 1] ? ", " : "")
                 });
                 messagepost.send_message(__getVoiceDefaultChannel(status), mes)
+                delete vcDict[status.channelId]
             }
         } else if (status.channel.members.size == 1) {
             entry.totalTime += new Date() - entry.vcBeginTime
