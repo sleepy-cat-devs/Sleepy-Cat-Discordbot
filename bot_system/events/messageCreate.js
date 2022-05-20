@@ -5,7 +5,7 @@ const Discord = require("discord.js")
 const options = require("../options")
 
 const handler = (message) => {
-    if (message.author.bot)
+    if (message.system || message.author.bot)
         return
     let mes = `${message.author.tag} in #${message.channel.name} sent: ${message.content}`
     console.log(mes)
