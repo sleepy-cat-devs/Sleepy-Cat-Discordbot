@@ -1,4 +1,3 @@
-const Discord = require("discord.js")
 const options = require("./options")
 
 exports.send_message = (channel, mes) => {
