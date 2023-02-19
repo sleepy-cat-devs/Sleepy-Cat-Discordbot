@@ -3,7 +3,7 @@ const options = require("../options.js")
 module.exports = {
     command: {
         name: "ping",
-        description: "Replies with Pong!"
+        description: "botが反応します（疎通確認にでも）"
     }
 }
 

@@ -40,13 +40,13 @@ exports.startup = () => {
             "name": d[i][1],
             "id": d[i][0]
         })
-    }
+    }/*
     if (fs.existsSync(this.optionsdir + "guilds_list.json")) { //ファイルの有無
         console.log(this.optionsdir + "guilds_list.json\" is found")
-    } else {
-        console.log(this.optionsdir + "guilds_list.json\" is not found")
-        fs.writeFileSync(this.optionsdir + "guilds_list.json", JSON.stringify(guild_list, null, 2))
-    }
+    } else {*/
+    console.log(this.optionsdir + "guilds_list.json\" is not found")
+    fs.writeFileSync(this.optionsdir + "guilds_list.json", JSON.stringify(guild_list, null, 2))
+    //}
 
     //サーバーデータの取得
     d = Object.keys(this.guild_data)
@@ -63,14 +63,15 @@ exports.startup = () => {
             const guild = this.client.guilds.cache.get(d[i])
             const syschid = guild.systemChannelId
             const channels = guild.channels.cache.map(a => [a.type, a.id, a.name])
+            console.dir(channels, { depth: 2 })
             //console.log(channels)
             for (let j = 0; j < channels.length; j++) {
-                if (channels[j][0] == "GUILD_TEXT")
+                if (channels[j][0] == 0)
                     this.guild_data[d[i]]["GUILD_TEXT"].push({
                         "ch_id": channels[j][1],
                         "name": channels[j][2]
                     })
-                else if (channels[j][0] == "GUILD_VOICE")
+                else if (channels[j][0] == 2)
                     this.guild_data[d[i]]["GUILD_VOICE"].push({
                         "ch_id": channels[j][1],
                         "name": channels[j][2]
@@ -96,14 +97,30 @@ exports.getVersion = () => {
     return this.update[0]["ver"]
 }
 
-exports.channelCreate = (type, channel) => {
+exports.channel_data_update = (type, channel_type, channel) => {
     let ch_data = {}
     ch_data["ch_id"] = channel.id
     ch_data["name"] = channel.name
-    if (type == "GUILD_VOICE") {
-        ch_data["default_textchid"] = channel.guild.systemChannelId
+    //チャンネル作成時
+    if (type == 0) {
+        if (channel_type == "GUILD_VOICE") {
+            ch_data["default_textchid"] = channel.guild.systemChannelId
+        }
+        this.guild_data[channel.guildId][channel_type].push(ch_data)
+        console.log(channel.name, "を", channel_type, "として追加しました")
+    } else if (type == 1) {
+        for (d of this.guild_data[channel.guildId][channel_type]) {
+            if (d["ch_id"] == channel.id) {
+                let del_d = d
+                let index = this.guild_data[channel.guildId][channel_type].indexOf(del_d)
+                this.guild_data[channel.guildId][channel_type].splice(index, 1)
+            }
+        }
+        console.log(channel.name, "を", channel_type, "から削除しました")
     }
-    //console.log(ch_data)
-    this.guild_data[channel.guildId][type].push(ch_data)
     this.guild_data_update(channel.guildId)
+}
+
+exports.getchannels = (guildid, channeltype) => {
+    return this.guild_data[guildid][channeltype]
 }

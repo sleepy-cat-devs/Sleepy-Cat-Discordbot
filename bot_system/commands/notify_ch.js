@@ -1,3 +1,4 @@
+const { ApplicationCommandType, ApplicationCommandOptionType } = require('discord.js');
 const options = require("../options")
 
 module.exports = {
@@ -5,10 +6,10 @@ module.exports = {
         name: "notify_ch",
         description: "VC通知をするチャンネルの変更",
         options: [{
-            type: "CHANNEL",
+            type: ApplicationCommandOptionType.Channel,
+            channel_types: [0],
             name: "textchannel",
-            description: "TextChannel を選択",
-            channel_types: [0]
+            description: "TextChannel を選択"
         }]
     }
 }

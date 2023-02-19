@@ -11,7 +11,7 @@ const handler = (message) => {
     console.log(mes)
 
     //update内容の表示
-    if (message.content === "!update") {
+    /*if (message.content === "!update") {
         const update = options.getupdate()
         if (update.length == 0)
             return
@@ -36,9 +36,7 @@ const handler = (message) => {
             embeds: [e]
         })
         return
-    }
-
-    //botのニックネーム変更
+    }*/
 
     //メンション時応答
     if (message.mentions.has(options.client.user.id)) {

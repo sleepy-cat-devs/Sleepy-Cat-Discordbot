@@ -2,7 +2,6 @@ const fs = require("fs")
 
 const events = require("./bot_system/event")
 const options = require("./bot_system/options")
-const db=require("./bot_system/database.js")
 
 process.chdir(__dirname)
 

@@ -4,6 +4,8 @@ const options = require("../options")
 const messagepost = require("../messagepost")
 
 const handler = (oldStatus, newStatus) => {
+    if (newStatus.member.user.bot)
+        return
     console.log("change voice status")
     if (oldStatus.channel != newStatus.channel) {
         //ボイチャ参加

@@ -1,3 +1,4 @@
+const { ApplicationCommandType, ApplicationCommandOptionType } = require('discord.js');
 const options = require("../options")
 
 module.exports = {
@@ -5,7 +6,7 @@ module.exports = {
         name: "bot_nick",
         description: "botニックネームの変更",
         options: [{
-            type: "STRING",
+            type: ApplicationCommandOptionType.String,
             name: "name",
             description: "\"ニックネーム\" を入力",
             required: true
