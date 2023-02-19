@@ -1,9 +1,13 @@
+//ping.js
+
+//botにpingを送るコマンド，及びbotの反応
+
 const options = require("../options.js")
 
 module.exports = {
     command: {
         name: "ping",
-        description: "Replies with Pong!"
+        description: "botが反応します（疎通確認にでも）"
     }
 }
 

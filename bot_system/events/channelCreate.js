@@ -1,13 +1,24 @@
+//channelCreate.js
+
+//チャンネルが作成されたイベントを取得
+//bot用データにチャンネルデータを追加する指示
+//ステージチャンネル未対応（フォーラムも）
+
 const path = require("path")
+const { ChannelType } = require("discord.js")
 
 const options = require("../options")
 
 const name = path.basename(__filename, ".js")
 
 const handler = (channel) => {
-    if (channel.type == "GUILD_TEXT" || channel.type == "GUILD_VOICE") {
-        options.channelCreate(channel.type, channel)
-    }
+    if (channel.type == ChannelType.GuildText)
+        options.channel_data_update(0, "GUILD_TEXT", channel)
+    else if (channel.type == ChannelType.GuildVoice)
+        options.channel_data_update(0, "GUILD_VOICE", channel)
+    //ステージチャンネル未対応
+    //else if (channel.type == ChannelType.GuildStageVoice)
+    //    options.channel_data_update(0, "GUILD_STAGE", channel)
 }
 
 module.exports = {
