@@ -1,4 +1,7 @@
 // events.js
+
+//DiscordAPIのイベントを登録
+
 const fs = require('fs')
 
 events_data = []

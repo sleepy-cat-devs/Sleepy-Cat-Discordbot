@@ -1,3 +1,7 @@
+//showver.js
+
+//botに関する情報を表示したい
+
 const options = require("../options")
 
 module.exports = {
@@ -12,6 +16,8 @@ options.client.on("interactionCreate", async (interaction) => {
         return;
     }
     if (interaction.commandName === "showver") {
-        await interaction.reply("ver. " + options.getVersion());
+        text = "Bot ver. " + "???" + "\n"
+        text += "discord.js@" + "14.3.0"
+        await interaction.reply(text);
     }
 });
