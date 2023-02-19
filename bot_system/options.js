@@ -1,3 +1,7 @@
+//options.js
+
+//データファイルの読み込み，変更をするプログラムを集約
+
 const fs = require("fs")
 
 exports.version
@@ -103,12 +107,15 @@ exports.channel_data_update = (type, channel_type, channel) => {
     ch_data["name"] = channel.name
     //チャンネル作成時
     if (type == 0) {
+        //VCのみデフォルトの通知チャンネルを設定
         if (channel_type == "GUILD_VOICE") {
             ch_data["default_textchid"] = channel.guild.systemChannelId
         }
         this.guild_data[channel.guildId][channel_type].push(ch_data)
         console.log(channel.name, "を", channel_type, "として追加しました")
-    } else if (type == 1) {
+    }
+    //チャンネル削除時
+    else if (type == 1) {
         for (d of this.guild_data[channel.guildId][channel_type]) {
             if (d["ch_id"] == channel.id) {
                 let del_d = d

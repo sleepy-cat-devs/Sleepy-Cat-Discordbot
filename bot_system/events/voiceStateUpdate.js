@@ -1,11 +1,17 @@
+//voiceStateUpdate.js
+
+//通話の入退出，画面共有を感知し，通知を行う
+
 const name = 'voiceStateUpdate'
 const options = require("../options")
 
 const messagepost = require("../messagepost")
 
 const handler = (oldStatus, newStatus) => {
+    //対象がbotの場合はスルー
     if (newStatus.member.user.bot)
         return
+
     console.log("change voice status")
     if (oldStatus.channel != newStatus.channel) {
         //ボイチャ参加
@@ -45,18 +51,16 @@ function __getVoiceDefaultChannel(status) {
 }
 
 let vcDict = new Object();
-
-/*
-{
+/*{
     ボイチャチャンネルID（数字列）:{
         members (Setオブジェクト 重複なし):{}
         startTime:VCの開始時間
         vcBeginTime:2名以上が参加した時刻
         totalTime:2名以上のボイチャが継続された時間
     }
-}
-*/
+}*/
 
+//通話参加時
 function __join_vc(status) {
     messagepost.send_message(
         __getVoiceDefaultChannel(status),
@@ -76,6 +80,7 @@ function __join_vc(status) {
     console.log(vcDict)
 }
 
+//通話退出
 function __leave_vc(status) {
     if (String(status.channelId) in vcDict) {
         let entry = vcDict[status.channelId]

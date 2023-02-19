@@ -1,3 +1,7 @@
+//showver.js
+
+//botに関する情報を表示したい
+
 const options = require("../options")
 
 module.exports = {

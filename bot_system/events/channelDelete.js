@@ -1,3 +1,8 @@
+//channelDelete.js
+
+//チャンネルが作成されたイベントを取得
+//bot用データからチャンネルデータを削除する指示
+
 const path = require("path")
 const { ChannelType } = require("discord.js")
 

@@ -1,3 +1,8 @@
+//index.js
+
+//botのmainプログラム
+//起動時に実行するファイル
+
 const fs = require("fs")
 
 const events = require("./bot_system/event")
@@ -22,7 +27,7 @@ const {
     GatewayIntentBits
 } = require("discord.js");
 const client = new Client({
-    intents:[
+    intents: [
         GatewayIntentBits.Guilds,
         GatewayIntentBits.GuildMembers,
         GatewayIntentBits.GuildMessages,

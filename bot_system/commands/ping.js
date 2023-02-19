@@ -1,3 +1,7 @@
+//ping.js
+
+//botにpingを送るコマンド，及びbotの反応
+
 const options = require("../options.js")
 
 module.exports = {

@@ -1,3 +1,7 @@
+//notify_ch.js
+
+//VC参加時の参加通知を行うテキストチャンネルの指定
+
 const { ApplicationCommandType, ApplicationCommandOptionType } = require('discord.js');
 const { ChannelType } = require('discord.js');
 const options = require("../options")
@@ -14,7 +18,6 @@ module.exports = {
         }, {
             type: ApplicationCommandOptionType.Channel,
             channel_types: [ChannelType.GuildVoice],
-            required: false,
             name: "voicechannel",
             description: "VoiceChannel を選択"
         }]

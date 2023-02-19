@@ -1,3 +1,8 @@
+//ready.js
+
+//bot起動時に行われる処理
+//botの起動準備
+
 const options = require("../options")
 const commands = require("../commands")
 const name = 'ready'

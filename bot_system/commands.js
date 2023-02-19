@@ -1,3 +1,7 @@
+//commands.js
+
+//ボットにコマンドを登録する処理
+
 const fs = require('fs')
 
 commands_data = []
