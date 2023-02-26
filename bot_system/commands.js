@@ -11,7 +11,7 @@ fs.readdir(__dirname + '/commands', (err, files) => {
     files.forEach(file => {
         //console.log(file)
         commands_data.push(require("./commands/" + file)["command"])
-        //console.dir(commands_data)
+        //console.dir(require("./commands/" + file)["command"])
     })
 })
 
