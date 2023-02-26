@@ -8,16 +8,12 @@ const options = require("../options")
 const messagepost = require("../messagepost")
 
 const handler = (oldStatus, newStatus) => {
-    //対象がbotの場合はスルー
-    if (newStatus.member.user.bot)
-        return
-
     console.log("change voice status")
     if (oldStatus.channel != newStatus.channel) {
-        //ボイチャ参加
-        if (newStatus.channel != null) __join_vc(newStatus)
+        //ボイチャ参加  対象がbotの場合は判定なし
+        if (newStatus.channel != null && !newStatus.member.user.bot) __join_vc(newStatus)
         //ボイチャ退出
-        if (oldStatus.channel != null) __leave_vc(oldStatus)
+        else if (oldStatus.channel != null) __leave_vc(oldStatus)
     }
     //画面共有の開始
     if (oldStatus.streaming != newStatus.streaming && newStatus.streaming) {
