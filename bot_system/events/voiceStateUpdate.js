@@ -58,12 +58,13 @@ let vcDict = new Object();
 
 //通話参加時
 function __join_vc(status) {
+    console.log("join_vc");
     messagepost.send_message(
         __getVoiceDefaultChannel(status),
         `${status.member.displayName} が ${status.channel} に参加しました`)
     if (String(status.channelId) in vcDict) {
         vcDict[status.channelId].members.add(status.member.id)
-        if (status.channel.members.size == 2) {
+        if (__getUserLen(status) == 2) {
             vcDict[status.channelId].vcBeginTime = new Date()
         }
     } else {
@@ -78,9 +79,10 @@ function __join_vc(status) {
 
 //通話退出
 function __leave_vc(status) {
+    console.log("leave_vc");
     if (String(status.channelId) in vcDict) {
         let entry = vcDict[status.channelId]
-        if (status.channel.members.size == 0) {
+        if (__getUserLen(status) == 0) {
             if (entry.members.size >= 2) {
                 console.log(entry.totalTime)
                 console.log(__getHMS(entry.totalTime))
@@ -98,7 +100,7 @@ function __leave_vc(status) {
                 delete vcDict[status.channelId]
             }
             delete vcDict[status.channelId]
-        } else if (status.channel.members.size == 1) {
+        } else if (__getUserLen(status) == 1) {
             entry.totalTime += new Date() - entry.vcBeginTime
         }
     }
@@ -115,4 +117,14 @@ function __getHMS(tt) {
     let h = tt
     let text = (h > 0 ? `${h}時間` : "") + (m > 0 ? `${m}分` : "") + `${s}秒`
     return text
+}
+
+//BOT以外のユーザーの人数を返す関数
+function __getUserLen(status) {
+    let members = status.channel.members;
+    let val = 0;
+    members.forEach(member => {
+        if (!member.user.bot) val++
+    });
+    return val;
 }
