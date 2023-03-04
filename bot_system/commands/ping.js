@@ -3,9 +3,11 @@
 //botにpingを送るコマンド，及びbotの反応
 
 const options = require("../options.js")
+const { ApplicationCommandType, ApplicationCommandOptionType } = require('discord.js');
 
 module.exports = {
     command: {
+        type: ApplicationCommandType.ChatInput,
         name: "ping",
         description: "botが反応します（疎通確認にでも）"
     }

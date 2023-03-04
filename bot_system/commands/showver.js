@@ -3,9 +3,11 @@
 //botに関する情報を表示したい
 
 const options = require("../options")
+const { ApplicationCommandType, ApplicationCommandOptionType } = require('discord.js');
 
 module.exports = {
     command: {
+        type: ApplicationCommandType.ChatInput,
         name: "showver",
         description: "実行中のbotのVersionを表示します"
     }

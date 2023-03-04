@@ -8,6 +8,7 @@ const options = require("../options")
 
 module.exports = {
     command: {
+        type: ApplicationCommandType.ChatInput,
         name: "notify_ch",
         description: "VC通知をするチャンネルの変更",
         options: [{
