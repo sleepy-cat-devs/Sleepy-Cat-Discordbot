@@ -9,6 +9,7 @@ const options = require("../options")
 
 module.exports = {
     command: {
+        type: ApplicationCommandType.ChatInput,
         name: "bot_system",
         description: "botのこのサーバーに関する設定",
         options: [{
