@@ -8,6 +8,10 @@ const options = require("../options")
 const messagepost = require("../messagepost")
 
 const handler = (oldStatus, newStatus) => {
+    //対象がbotの場合はスルー
+    if (newStatus.member.user.bot)
+        return
+
     console.log("change voice status")
     if (oldStatus.channel != newStatus.channel) {
         //ボイチャ参加  対象がbotの場合は判定なし
