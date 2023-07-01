@@ -1,3 +1,2 @@
-
-__pycache__/vcsupport.cpython-38.pyc
-*.pyc
+node_modules/
+.vscode/settings.json
