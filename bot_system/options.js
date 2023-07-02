@@ -9,8 +9,11 @@ exports.is_release
 exports.client
 exports.option_dir
 
+exports.update
+
+exports.guild_list = []
+
 exports.get_voice_default_channel = (guildid, channelid) => {
-    //console.log(guildid, channelid)
     for (const vc_ch of this.guild_data[guildid]["GUILD_VOICE"]) {
         if (vc_ch["ch_id"] == channelid) {
             const ch = this.client.channels.cache.get(vc_ch["default_textchid"])
@@ -19,19 +22,13 @@ exports.get_voice_default_channel = (guildid, channelid) => {
     }
 }
 
-exports.get_update = () => {
-    return this.update
-}
-
 //TODO startupは名称から機能が推測できないため変更する
 exports.initialize = () => {
     this.guild_data = {}
     //updateデータの読み込み
-    this.update = JSON.parse(fs.readFileSync("./update.json", "utf8"))
-    this.update = this.update["data"]
+    this.update = JSON.parse(fs.readFileSync("./update.json", "utf8"))["data"]
 
     let d = this.client.guilds.cache.map(a => [a.id, a.name])
-    guild_list = []
 
     for (let i = 0; i < d.length; i++) {
         this.guild_data[d[i][0]] = {
@@ -40,52 +37,62 @@ exports.initialize = () => {
     }
     //サーバーリストの書き出し
     for (let i = 0; i < d.length; i++) {
-        guild_list.push({
+        this.guild_list.push({
             "name": d[i][1],
             "id": d[i][0]
         })
     }
-    console.log(this.option_dir + "/guilds_list.json\" is not found")
-    fs.writeFileSync(this.option_dir + "/guilds_list.json", JSON.stringify(guild_list, null, 2))
+
+    // ボットが参加しているサーバー一覧のファイルを保存
+    const guilds_list_file_path = `${this.option_dir}/guilds_list.json`
+    fs.writeFileSync(guilds_list_file_path, JSON.stringify(this.guild_list, null, 2))
 
     //サーバーデータの取得
     d = Object.keys(this.guild_data)
     for (let i = 0; i < d.length; i++) {
         //サーバーオプションデータの出力、データ取得済みチャンネルはパス
-        if (fs.existsSync(this.option_dir + "/guilds/" + d[i] + ".json")) {
-            console.log(this.option_dir + "/guilds/" + d[i] + ".json\" is found")
-            this.guild_data[d[i]] = JSON.parse(fs.readFileSync(this.option_dir + "/guilds/" + d[i] + ".json", "utf8"))
+        const guild_channels_file_path = `${this.option_dir}/guilds/${d[i]}.json`
+        if (fs.existsSync(guild_channels_file_path)) {
+            console.log(`${guild_channels_file_path} is found`)
+
+            this.guild_data[d[i]] = JSON.parse(fs.readFileSync(guild_channels_file_path, "utf8"))
         } else {
-            console.log(this.option_dir + "/guilds/" + d[i] + ".json\" is not found")
+            console.log(`${guild_channels_file_path} is not found`)
+
             this.guild_data[d[i]]["GUILD_TEXT"] = []
             this.guild_data[d[i]]["GUILD_VOICE"] = []
+
             const guild = this.client.guilds.cache.get(d[i])
             const syschid = guild.systemChannelId
-            const channels = guild.channels.cache.map(a => [a.type, a.id, a.name])
+            const channels = guild.channels.cache.map(ch => { return { ch_type: ch.type, ch_id: ch.id, ch_name: ch.name } })
+            // console.log(guild.channels.cache)
             console.dir(channels, { depth: 2 })
+
+            // NOTE チャンネルタイプ: 0がテキスト，2がボイス，4がカテゴリ，13がステージ
             for (let j = 0; j < channels.length; j++) {
-                if (channels[j][0] == 0)
-                    this.guild_data[d[i]]["GUILD_TEXT"].push({
-                        "ch_id": channels[j][1],
-                        "name": channels[j][2]
+                let channel_type_text = null;
+                switch (channels[j]["type"]) {
+                    case 0:
+                        channel_type_text = "GUILD_TEXT"
+                        break
+                    case 1:
+                        channel_type_text = "GUILD_VOICE"
+                        break
+                }
+
+                if (channel_type_text != null) {
+                    this.guild_data[d[i]][channel_type_text].push({
+                        "ch_id": channels[j]["ch_id"],
+                        "name": channels[j]["ch_id"]
                     })
-                else if (channels[j][0] == 2)
-                    this.guild_data[d[i]]["GUILD_VOICE"].push({
-                        "ch_id": channels[j][1],
-                        "name": channels[j][2]
-                    })
+                }
             }
             for (let j = 0; j < this.guild_data[d[i]]["GUILD_VOICE"].length; j++) {
                 this.guild_data[d[i]]["GUILD_VOICE"][j]["default_textchid"] = syschid
             }
-            fs.writeFileSync(this.option_dir + "/guilds/" + d[i] + ".json", JSON.stringify(this.guild_data[d[i]], null, 2))
+            fs.writeFileSync(guild_channels_file_path, JSON.stringify(this.guild_data[d[i]], null, 2))
         }
     }
-}
-
-//NOTE 変数の値をそのまま返す関数の必要性は疑わしい
-exports.get_guild_list = () => {
-    return guild_list
 }
 
 exports.guild_data_update = (guild_id) => {
@@ -111,6 +118,7 @@ exports.channel_data_update = (type, channel_type, channel) => {
     }
     //チャンネル削除時
     else if (type == 1) {
+        // NOTE 番号を参照するための処理が冗長に見える
         for (d of this.guild_data[channel.guildId][channel_type]) {
             if (d["ch_id"] == channel.id) {
                 let del_d = d
