@@ -23,7 +23,7 @@ const handler = () => {
 }
 
 async function set_commands() {
-    for (const guild_d of options.get_guild_list()) {
+    for (const guild_d of options.guild_list) {
         await options.client.application.commands.set(commands.get_commands(), guild_d["id"])
     }
     console.log("command set")
