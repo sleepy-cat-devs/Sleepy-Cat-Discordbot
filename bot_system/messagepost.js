@@ -6,10 +6,10 @@
 const options = require("./options")
 
 exports.send_message = (channel, mes) => {
-    if (!options.isrelease) {
-        //テスト中はコンソールにログが出る
-        console.log("チャンネル：" + channel + "\n" + mes + " を投稿しようとしました")
-    } else {
+    if (options.isrelease && channel !== undefined) {
         channel.send(mes)
+    } else {
+        //テスト中はコンソールにログが出る
+        console.log(`チャンネル:${channel===undefined?"未定義":channel}\nメッセージ:${mes}を投稿しようとしました`)
     }
 }
