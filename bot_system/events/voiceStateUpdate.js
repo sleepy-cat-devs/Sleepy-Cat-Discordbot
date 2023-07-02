@@ -27,7 +27,6 @@ const handler = (oldStatus, newStatus) => {
     }
     //サーバーミュート（VoiseStatueのコンソール出力用）
     if (oldStatus.serverMute != newStatus.serverMute && newStatus.serverMute) {
-        //const channel=options.getvoicedefaultchannel(newStatus.guild["id"],newStatus.channelId)
         console.log("\nserverMute")
         console.dir(newStatus.member.presences, {
             depth: 3
@@ -47,7 +46,7 @@ module.exports = {
 }
 
 function __getVoiceDefaultChannel(status) {
-    return options.getvoicedefaultchannel(status.guild["id"], status.channelId)
+    return options.get_voice_default_channel(status.guild["id"], status.channelId)
 }
 
 let vcDict = new Object();

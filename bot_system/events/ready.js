@@ -9,7 +9,7 @@ const name = 'ready'
 
 const handler = () => {
 
-    options.startup()
+    options.initialize()
 
     set_commands()
 
@@ -23,8 +23,8 @@ const handler = () => {
 }
 
 async function set_commands() {
-    for (const guild_d of options.getGuildlist()) {
-        await options.client.application.commands.set(commands.getCommands(), guild_d["id"])
+    for (const guild_d of options.get_guild_list()) {
+        await options.client.application.commands.set(commands.get_commands(), guild_d["id"])
     }
     console.log("command set")
 }

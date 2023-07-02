@@ -43,7 +43,7 @@ options.client.on("interactionCreate", async (interaction) => {
         //GUILD_TEXT or GUILD_VOICEの一覧を表示
         if (interaction.options._hoistedOptions[0].value === "GUILD_TEXT" ||
             interaction.options._hoistedOptions[0].value === "GUILD_VOICE") {
-            let guildlist = options.getchannels(interaction.guildId, interaction.options._hoistedOptions[0].value)
+            let guildlist = options.get_channels(interaction.guildId, interaction.options._hoistedOptions[0].value)
             let text = interaction.guild.name + " : " + interaction.options._hoistedOptions[0].value
             for (d of guildlist) {
                 text += "\n> " + d["name"]
@@ -52,7 +52,7 @@ options.client.on("interactionCreate", async (interaction) => {
         }
         //VCの通知チャンネルの一覧を表示
         if (interaction.options._hoistedOptions[0].value === "notifych") {
-            let guildlist = options.getchannels(interaction.guildId, "GUILD_VOICE")
+            let guildlist = options.get_channels(interaction.guildId, "GUILD_VOICE")
             let text = interaction.guild.name + " : NotifyChannel"
             for (d of guildlist) {
                 text += "\n> " + d["name"] + "\n>    <#" + d["default_textchid"] + ">"

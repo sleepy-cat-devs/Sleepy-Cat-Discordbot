@@ -15,6 +15,6 @@ fs.readdir(__dirname + '/commands', (err, files) => {
     })
 })
 
-exports.getCommands = () => {
+exports.get_commands = () => {
     return commands_data
 }
