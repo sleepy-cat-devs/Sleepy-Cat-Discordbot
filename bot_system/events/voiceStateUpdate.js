@@ -117,7 +117,7 @@ function __getHMS(tt) {
     let m = tt % 60
     tt = Math.trunc(tt / 60)
     let h = tt
-    let text = (h > 0 ? `${h}時間` : "") + (m > 0 ? `${m}分` : "") + `${s}秒`
+    let text = `${(h > 0 ? `${h}時間` : "")}${(m > 0 ? `${m}分` : "")}${s}.${ms}秒`
     return text
 }
 
