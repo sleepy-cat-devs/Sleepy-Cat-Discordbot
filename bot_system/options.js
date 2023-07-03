@@ -71,11 +71,11 @@ exports.initialize = () => {
             // NOTE チャンネルタイプ: 0がテキスト，2がボイス，4がカテゴリ，13がステージ
             for (let j = 0; j < channels.length; j++) {
                 let channel_type_text = null;
-                switch (channels[j]["type"]) {
+                switch (channels[j]["ch_type"]) {
                     case 0:
                         channel_type_text = "GUILD_TEXT"
                         break
-                    case 1:
+                    case 2:
                         channel_type_text = "GUILD_VOICE"
                         break
                 }
@@ -83,7 +83,7 @@ exports.initialize = () => {
                 if (channel_type_text != null) {
                     this.guild_data[d[i]][channel_type_text].push({
                         "ch_id": channels[j]["ch_id"],
-                        "name": channels[j]["ch_id"]
+                        "name": channels[j]["ch_name"]
                     })
                 }
             }
@@ -93,6 +93,7 @@ exports.initialize = () => {
             fs.writeFileSync(guild_channels_file_path, JSON.stringify(this.guild_data[d[i]], null, 2))
         }
     }
+    console.log(this.guild_data)
 }
 
 exports.guild_data_update = (guild_id) => {
@@ -103,12 +104,13 @@ exports.get_version = () => {
     return this.update[0]["ver"]
 }
 
+//NOTE  作成と削除で別々の関数にするべき
 exports.channel_data_update = (type, channel_type, channel) => {
     let ch_data = {}
     ch_data["ch_id"] = channel.id
     ch_data["name"] = channel.name
     //チャンネル作成時
-    if (type == 0) {
+    if (type == "Create") {
         //VCのみデフォルトの通知チャンネルを設定
         if (channel_type == "GUILD_VOICE") {
             ch_data["default_textchid"] = channel.guild.systemChannelId
@@ -117,16 +119,12 @@ exports.channel_data_update = (type, channel_type, channel) => {
         console.log(channel.name, "を", channel_type, "として追加しました")
     }
     //チャンネル削除時
-    else if (type == 1) {
-        // NOTE 番号を参照するための処理が冗長に見える
-        for (d of this.guild_data[channel.guildId][channel_type]) {
-            if (d["ch_id"] == channel.id) {
-                let del_d = d
-                let index = this.guild_data[channel.guildId][channel_type].indexOf(del_d)
-                this.guild_data[channel.guildId][channel_type].splice(index, 1)
-            }
+    else if (type == "Delete") {
+        const ch_index = this.guild_data[channel.guildId][channel_type].map(ch => ch["ch_id"]).indexOf(channel.id)
+        if (ch_index != -1) {
+            this.guild_data[channel.guildId][channel_type].splice(ch_index, 1)
         }
-        console.log(channel.name, "を", channel_type, "から削除しました")
+        console.log(`${channel.name}を${channel_type}から削除しました`)
     }
     this.guild_data_update(channel.guildId)
 }

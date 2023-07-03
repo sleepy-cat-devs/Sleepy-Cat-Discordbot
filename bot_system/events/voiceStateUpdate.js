@@ -23,7 +23,6 @@ const handler = (oldStatus, newStatus) => {
     if (oldStatus.streaming != newStatus.streaming && newStatus.streaming) {
         const channel = __getVoiceDefaultChannel(newStatus)
         messagepost.send_message(channel, `${newStatus.member.displayName} が ${newStatus.channel} で画面共有を開始しました`)
-        //console.dir(newStatus.member,{depth:3})
     }
     //サーバーミュート（VoiseStatueのコンソール出力用）
     if (oldStatus.serverMute != newStatus.serverMute && newStatus.serverMute) {
