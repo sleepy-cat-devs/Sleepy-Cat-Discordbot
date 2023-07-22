@@ -2,6 +2,7 @@
 
 //データファイルの読み込み，変更をするプログラムを集約
 
+const { ChannelType } = require("discord.js")
 const fs = require("fs")
 
 exports.version
@@ -68,14 +69,13 @@ exports.initialize = () => {
             // console.log(guild.channels.cache)
             console.dir(channels, { depth: 2 })
 
-            // NOTE チャンネルタイプ: 0がテキスト，2がボイス，4がカテゴリ，13がステージ
             for (let j = 0; j < channels.length; j++) {
                 let channel_type_text = null;
                 switch (channels[j]["ch_type"]) {
-                    case 0:
+                    case ChannelType.GuildText:
                         channel_type_text = "GUILD_TEXT"
                         break
-                    case 2:
+                    case ChannelType.GuildVoice:
                         channel_type_text = "GUILD_VOICE"
                         break
                 }
