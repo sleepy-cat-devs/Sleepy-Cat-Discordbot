@@ -13,12 +13,12 @@ const name = path.basename(__filename, ".js")
 
 const handler = (channel) => {
     if (channel.type == ChannelType.GuildText)
-        options.channel_data_update(0, "GUILD_TEXT", channel)
+        options.channel_data_update("Create", "GUILD_TEXT", channel)
     else if (channel.type == ChannelType.GuildVoice)
-        options.channel_data_update(0, "GUILD_VOICE", channel)
+        options.channel_data_update("Create", "GUILD_VOICE", channel)
     //ステージチャンネル未対応
     //else if (channel.type == ChannelType.GuildStageVoice)
-    //    options.channel_data_update(0, "GUILD_STAGE", channel)
+    //    options.channel_data_update("Create", "GUILD_STAGE", channel)
 }
 
 module.exports = {

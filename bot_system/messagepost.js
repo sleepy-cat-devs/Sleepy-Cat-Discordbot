@@ -6,7 +6,7 @@
 const options = require("./options")
 
 exports.send_message = (channel, mes) => {
-    if (!options.isrelease) {
+    if (!options.is_release) {
         //テスト中はコンソールにログが出る
         console.log("チャンネル：" + channel + "\n" + mes + " を投稿しようとしました")
     } else {

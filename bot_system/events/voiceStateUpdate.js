@@ -23,11 +23,9 @@ const handler = (oldStatus, newStatus) => {
     if (oldStatus.streaming != newStatus.streaming && newStatus.streaming) {
         const channel = __getVoiceDefaultChannel(newStatus)
         messagepost.send_message(channel, `${newStatus.member.displayName} が ${newStatus.channel} で画面共有を開始しました`)
-        //console.dir(newStatus.member,{depth:3})
     }
     //サーバーミュート（VoiseStatueのコンソール出力用）
     if (oldStatus.serverMute != newStatus.serverMute && newStatus.serverMute) {
-        //const channel=options.getvoicedefaultchannel(newStatus.guild["id"],newStatus.channelId)
         console.log("\nserverMute")
         console.dir(newStatus.member.presences, {
             depth: 3
@@ -47,7 +45,7 @@ module.exports = {
 }
 
 function __getVoiceDefaultChannel(status) {
-    return options.getvoicedefaultchannel(status.guild["id"], status.channelId)
+    return options.get_voice_default_channel(status.guild["id"], status.channelId)
 }
 
 let vcDict = new Object();
@@ -119,7 +117,7 @@ function __getHMS(tt) {
     let m = tt % 60
     tt = Math.trunc(tt / 60)
     let h = tt
-    let text = (h > 0 ? `${h}時間` : "") + (m > 0 ? `${m}分` : "") + `${s}秒`
+    let text = `${(h > 0 ? `${h}時間` : "")}${(m > 0 ? `${m}分` : "")}${s}.${ms}秒`
     return text
 }
 
