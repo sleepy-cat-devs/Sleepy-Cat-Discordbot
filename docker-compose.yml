@@ -9,6 +9,9 @@ services:
     volumes:
       - ./index.js:/praxi/index.js
       - ./bot_system:/praxi/bot_system
+      - ./update.json:/praxi/update.json
+      #  トークンファイルはGitHubに登録されませんBot管理者に問い合わせて用意してください
+      - ./token:/praxi/token
     tty: true
-    restart: unless-stopped
+    # restart: unless-stopped
     command: node index.js
