@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+  discordbot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: praxi
+    volumes:
+      - ./index.js:/praxi/index.js
+      - ./bot_system:/praxi/bot_system
+    tty: true
+    restart: unless-stopped
+    command: node index.js
