@@ -8,7 +8,7 @@ const fs = require("fs")
 const events = require("./bot_system/event")
 const options = require("./bot_system/options")
 
-const DEFAULT_OPTION_DIR = require("os").homedir() + "/Documents/Discord_App/Praxi"
+const DEFAULT_OPTION_DIR = "/praxi"
 
 // コマンドラインのオプション引数設定
 const cli_option = require("commander")
