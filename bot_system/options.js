@@ -3,8 +3,10 @@
 //データファイルの読み込み，変更をするプログラムを集約
 
 const { ChannelType } = require("discord.js")
+const consts = require("./consts")
 const yaml = require("js-yaml")
 const fs = require("fs")
+const path = require("path")
 
 // 実行時定数
 exports.version
@@ -27,10 +29,9 @@ exports.get_voice_default_channel = (guildid, channelid) => {
     }
 }
 
-//TODO startupは名称から機能が推測できないため変更する
 exports.initialize = () => {
     this.guild_data = {}
-    //updateデータの読み込み
+    //ボット更新情報の読み込み
     this.update = yaml.load(fs.readFileSync("./update.yml", "utf8"))
 
     this.version = this.get_version()
@@ -51,14 +52,14 @@ exports.initialize = () => {
     }
 
     // ボットが参加しているサーバー一覧のファイルを保存
-    const guilds_list_file_path = `${this.option_dir}/guilds_list.json`
+    const guilds_list_file_path = this.parse_option_path(consts.GUILDS_FILENAME)
     fs.writeFileSync(guilds_list_file_path, JSON.stringify(this.guild_list, null, 2))
 
     //サーバーデータの取得
     d = Object.keys(this.guild_data)
     for (let i = 0; i < d.length; i++) {
         //サーバーオプションデータの出力、データ取得済みチャンネルはパス
-        const guild_channels_file_path = `${this.option_dir}/guilds/${d[i]}.json`
+        const guild_channels_file_path = this.parse_option_path(consts.GUILDS_DIRNAME, `${d[i]}.json`)
         if (fs.existsSync(guild_channels_file_path)) {
             console.log(`${guild_channels_file_path} is found`)
 
@@ -103,14 +104,14 @@ exports.initialize = () => {
 }
 
 exports.guild_data_update = (guild_id) => {
-    fs.writeFileSync(this.option_dir + "/guilds/" + String(guild_id) + ".json", JSON.stringify(this.guild_data[guild_id], null, 2))
+    fs.writeFileSync(this.parse_option_path(consts.GUILDS_DIRNAME, `${guild_id}.json`), JSON.stringify(this.guild_data[guild_id], null, 2))
 }
 
 exports.get_version = () => {
     return this.update[0]["ver"]
 }
 
-//NOTE  作成と削除で別々の関数にするべき
+//NOTE  作成と削除で別々の関数にするべきでは
 exports.channel_data_update = (type, channel_type, channel) => {
     let ch_data = {}
     ch_data["ch_id"] = channel.id
@@ -137,4 +138,13 @@ exports.channel_data_update = (type, channel_type, channel) => {
 
 exports.get_channels = (guildid, channeltype) => {
     return this.guild_data[guildid][channeltype]
+}
+
+exports.parse_option_path = (...paths) => {
+    let joined_path = this.option_dir
+    paths.forEach(function (element) {
+        joined_path = path.join(joined_path, element)
+    })
+    console.log(joined_path)
+    return joined_path
 }

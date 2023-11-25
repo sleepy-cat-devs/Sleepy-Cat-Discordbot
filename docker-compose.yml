@@ -20,5 +20,4 @@ services:
       # トークンを記載した設定ファイルはGitHubに登録されません
       # Bot管理者に問い合わせて用意してください
       - ./settings.yml:/praxi/settings.yml
-    tty: true
     command: node index.js
