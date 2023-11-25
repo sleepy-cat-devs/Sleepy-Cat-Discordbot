@@ -4,6 +4,7 @@
 **/
 
 const fs = require("fs")
+const yaml = require("js-yaml")
 
 const events = require("./bot_system/event")
 const options = require("./bot_system/options")
@@ -45,16 +46,17 @@ events.forEach(({ name, handler }) => client.on(name, handler))
 
 console.log(`設定を次のディレクトリから取得します：${options.option_dir}`)
 
-let bot_token_file_path = options.option_dir + "/token"
-//tokenファイルの有無確認
-if (!fs.existsSync(bot_token_file_path)) {
+let bot_token_file_path = options.option_dir + "/settings.yml"
+try {
+    const settings = fs.readFileSync(bot_token_file_path, "utf8")
+    const token = yaml.load(settings)["token"]
+    // トークンを使ってDiscordにログイン
+    client.login(token)
+} catch {
+    // 設定ファイルの読み込みに失敗した場合
     fs.writeFileSync(bot_token_file_path, "")
     console.log(`"${bot_token_file_path}"にBotのトークンを保存してください`)
     process.exit()
-} else {
-    const token = fs.readFileSync(bot_token_file_path, "utf8")
-    // トークンを使ってDiscordにログイン
-    client.login(token)
 }
 //フォルダの自動生成
 let guilds_option_dir_path = options.option_dir + "/guilds"

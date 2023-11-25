@@ -3,15 +3,19 @@
 //データファイルの読み込み，変更をするプログラムを集約
 
 const { ChannelType } = require("discord.js")
+const yaml = require("js-yaml")
 const fs = require("fs")
 
+// 実行時定数
 exports.version
 exports.is_release
 exports.client
 exports.option_dir
 
+// 更新内容ファイル
 exports.update
 
+// 参加したDiscordサーバーの一覧
 exports.guild_list = []
 
 exports.get_voice_default_channel = (guildid, channelid) => {
@@ -27,7 +31,9 @@ exports.get_voice_default_channel = (guildid, channelid) => {
 exports.initialize = () => {
     this.guild_data = {}
     //updateデータの読み込み
-    this.update = JSON.parse(fs.readFileSync("./update.json", "utf8"))["data"]
+    this.update = yaml.load(fs.readFileSync("./update.yml", "utf8"))
+
+    this.version = this.get_version()
 
     let d = this.client.guilds.cache.map(a => [a.id, a.name])
 

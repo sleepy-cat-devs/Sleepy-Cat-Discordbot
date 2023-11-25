@@ -3,16 +3,19 @@ version: '3'
 services:
   discordbot:
     build:
-      context: .
       dockerfile: Dockerfile
     container_name: praxi
     volumes:
+      # 起動スクリプト
       - ./index.js:/praxi/index.js
+      # ボットのコード
       - ./bot_system:/praxi/bot_system
-      - ./update.json:/praxi/update.json
-      #  トークンファイルはGitHubに登録されませんBot管理者に問い合わせて用意してください
-      - ./token:/praxi/token
+      # 更新履歴ファイル
+      - ./update.yml:/praxi/update.yml
+      # NOTE 参加サーバー等の情報 sqliteに変更予定
       - ./guilds:/praxi/guilds
+      # トークンを記載した設定ファイルはGitHubに登録されません
+      # Bot管理者に問い合わせて用意してください
+      - ./settings.yml:/praxi/settings.yml
     tty: true
-    # restart: unless-stopped
     command: node index.js
