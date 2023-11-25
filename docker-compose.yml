@@ -12,6 +12,7 @@ services:
       - ./update.json:/praxi/update.json
       #  トークンファイルはGitHubに登録されませんBot管理者に問い合わせて用意してください
       - ./token:/praxi/token
+      - ./guilds:/praxi/guilds
     tty: true
     # restart: unless-stopped
     command: node index.js
