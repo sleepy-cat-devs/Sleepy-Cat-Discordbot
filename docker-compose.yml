@@ -6,6 +6,8 @@ services:
       dockerfile: Dockerfile
     container_name: praxi
     volumes:
+      - ./package.json:/praxi/package.json
+      - ./package-lock.json:/praxi/package-lock.json
       # 起動スクリプト
       - ./index.js:/praxi/index.js
       # ボットのコード
@@ -14,6 +16,7 @@ services:
       - ./update.yml:/praxi/update.yml
       # NOTE 参加サーバー等の情報 sqliteに変更予定
       - ./guilds:/praxi/guilds
+
       # トークンを記載した設定ファイルはGitHubに登録されません
       # Bot管理者に問い合わせて用意してください
       - ./settings.yml:/praxi/settings.yml
