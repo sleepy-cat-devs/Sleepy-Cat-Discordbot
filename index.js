@@ -2,9 +2,23 @@
  * botのmainプログラム
  * 起動時に実行するファイル
 **/
-
 const fs = require("fs")
 const yaml = require("js-yaml")
+const cli_option = require("commander")
+const log4js = require("log4js")
+log4js.configure({
+    appenders: {
+        system: { type: "stdout" },
+        debug: { type: "file", filename: "debug.log" }
+    },
+    categories: {
+        default: { appenders: ["system"], level: "info" },
+        debug: { appenders: ["debug"], level: "debug" }
+    }
+})
+
+const systemLogger = log4js.getLogger("system")
+const debugLogger = log4js.getLogger("debug")
 
 const events = require("./bot_system/event")
 const options = require("./bot_system/options")
@@ -12,7 +26,6 @@ const options = require("./bot_system/options")
 const DEFAULT_OPTION_DIR = "/praxi"
 
 // コマンドラインのオプション引数設定
-const cli_option = require("commander")
 cli_option
     .option("-r, --release_mode", "リリースモードで起動します", false)
     .option("-d, --option_dir <optionValue>", "設定ディレクトリパスを指定", DEFAULT_OPTION_DIR)
@@ -24,7 +37,7 @@ options.is_release = cli_option_val.is_release
 options.option_dir = cli_option_val.option_dir
 options.client = null
 
-console.log(`${options.is_release ? "リリース" : "テスト"}モードで起動しました`)
+systemLogger.info(`${options.is_release ? "リリース" : "テスト"}モードで起動しました`)
 
 // 新しいDiscordクライアントを作成
 const { Client, GatewayIntentBits } = require("discord.js")
@@ -37,6 +50,7 @@ const client = new Client({
         GatewayIntentBits.GuildVoiceStates,
         GatewayIntentBits.DirectMessages,
         GatewayIntentBits.DirectMessageReactions,
+        GatewayIntentBits.MessageContent
     ],
 })
 options.client = client
@@ -44,7 +58,7 @@ options.client = client
 // eventsを全てclientに登録
 events.forEach(({ name, handler }) => client.on(name, handler))
 
-console.log(`設定を次のディレクトリから取得します：${options.option_dir}`)
+systemLogger.info(`設定を次のディレクトリから取得します：${options.option_dir}`)
 
 let bot_token_file_path = options.option_dir + "/settings.yml"
 try {
@@ -55,7 +69,7 @@ try {
 } catch {
     // 設定ファイルの読み込みに失敗した場合
     fs.writeFileSync(bot_token_file_path, "")
-    console.log(`"${bot_token_file_path}"にBotのトークンを保存してください`)
+    systemLogger.warn(`"${bot_token_file_path}"にBotのトークンを保存してください`)
     process.exit()
 }
 //フォルダの自動生成
