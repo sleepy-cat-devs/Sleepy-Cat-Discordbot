@@ -142,7 +142,7 @@ exports.channel_data_update = (type, channel_type, channel) => {
             ch_data[DEFAULT_TEXTCHID] = channel.g.systemChannelId
         }
         this.guild_data[channel.guildId][channel_type].push(ch_data)
-        console.log(channel.name, "を", channel_type, "として追加しました")
+        logger.info(channel.name, "を", channel_type, "として追加しました")
     }
     //チャンネル削除時
     else if (type == "Delete") {
@@ -150,7 +150,7 @@ exports.channel_data_update = (type, channel_type, channel) => {
         if (ch_index != -1) {
             this.guild_data[channel.guildId][channel_type].splice(ch_index, 1)
         }
-        console.log(`${channel.name}を${channel_type}から削除しました`)
+        logger.info(`${channel.name}を${channel_type}から削除しました`)
     }
     this.guild_data_update(channel.guildId)
 }
@@ -164,6 +164,5 @@ exports.parse_option_path = (...paths) => {
     paths.forEach(function (element) {
         joined_path = path.join(joined_path, element)
     })
-    console.log(joined_path)
     return joined_path
 }
