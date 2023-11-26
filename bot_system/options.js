@@ -16,6 +16,8 @@ let CHANNEL_TYPE_DICT = {}
 CHANNEL_TYPE_DICT[ChannelType.GuildText] = GUILD_TEXT
 CHANNEL_TYPE_DICT[ChannelType.GuildVoice] = GUILD_VOICE
 
+const DEFAULT_TEXTCHID = "default_textchid"
+
 logger.debug(CHANNEL_TYPE_DICT)
 
 // 実行時定数
@@ -31,9 +33,9 @@ exports.update
 exports.guild_list = []
 
 exports.get_voice_default_channel = (guildid, channelid) => {
-    for (const vc_ch of this.guild_data[guildid]["GUILD_VOICE"]) {
+    for (const vc_ch of this.guild_data[guildid][GUILD_VOICE]) {
         if (vc_ch["ch_id"] == channelid) {
-            const ch = this.client.channels.cache.get(vc_ch["default_textchid"])
+            const ch = this.client.channels.cache.get(vc_ch[DEFAULT_TEXTCHID])
             return ch
         }
     }
@@ -80,7 +82,7 @@ exports.initialize = () => {
             const voice_chs = JSON.parse(fs.readFileSync(guild_channels_file_path, "utf8"))[GUILD_VOICE]
             for (const voice_ch of voice_chs) {
                 // 保存されたファイルの設定を取得
-                saved_voicech_setting[voice_ch["ch_id"]] = voice_ch["default_textchid"]
+                saved_voicech_setting[voice_ch["ch_id"]] = voice_ch[DEFAULT_TEXTCHID]
             }
         } else {
             logger.debug(`${guild_channels_file_path}は存在しません`)
@@ -102,19 +104,19 @@ exports.initialize = () => {
                 ch_id: ch["ch_id"],
                 name: ch["ch_name"]
             }
-            if (ch_type_text === GUILD_VOICE) {
+            if (ch_type_text !== GUILD_VOICE) {
+                // デフォルトの通知先はシステムチャンネル（generalなど）を指定
+                ch_entry[DEFAULT_TEXTCHID] = system_ch_id
                 if (ch["ch_id"] in saved_voicech_setting) {
                     // ファイルに保存されている内容がある場合はそのままコピー
-                    ch_entry["default_textchid"] = saved_voicech_setting[ch["ch_id"]]
-                } else {
-                    // ファイルで設定されていない場合はシステムチャンネルを指定
-                    ch_entry["default_textchid"] = system_ch_id
+                    ch_entry[DEFAULT_TEXTCHID] = saved_voicech_setting[ch["ch_id"]]
                 }
             }
 
             target_guild[ch_type_text].push(ch_entry)
         }
 
+        // 更新済みの設定ファイルを保存
         fs.writeFileSync(guild_channels_file_path, JSON.stringify(target_guild, null, 2))
     }
     logger.debug(this.guild_data)
@@ -136,8 +138,8 @@ exports.channel_data_update = (type, channel_type, channel) => {
     //チャンネル作成時
     if (type == "Create") {
         //VCのみデフォルトの通知チャンネルを設定
-        if (channel_type == "GUILD_VOICE") {
-            ch_data["default_textchid"] = channel.g.systemChannelId
+        if (channel_type == GUILD_VOICE) {
+            ch_data[DEFAULT_TEXTCHID] = channel.g.systemChannelId
         }
         this.guild_data[channel.guildId][channel_type].push(ch_data)
         console.log(channel.name, "を", channel_type, "として追加しました")
