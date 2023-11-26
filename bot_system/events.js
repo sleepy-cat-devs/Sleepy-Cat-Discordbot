@@ -2,7 +2,8 @@
 
 //DiscordAPIのイベントを登録
 
-const fs = require('fs')
+const fs = require("fs")
+const logger = require("./logger").logger
 
 events_data = []
 
@@ -10,6 +11,6 @@ events_data = []
 fs.readdirSync(__dirname + '/events').forEach(file => {
     events_data.push(require("./events/" + file))
 })
-console.log("event list:", events_data)
+logger.info("event list:", events_data)
 
 module.exports = events_data

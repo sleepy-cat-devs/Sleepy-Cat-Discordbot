@@ -2,7 +2,7 @@
 
 //ボットにコマンドを登録する処理
 
-const fs = require('fs')
+const fs = require("fs")
 
 commands_data = []
 console.log(__dirname)

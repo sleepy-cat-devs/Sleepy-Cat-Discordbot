@@ -1,13 +1,18 @@
 const fs = require("fs")
 const yaml = require("js-yaml")
 const cli_option = require("commander")
+const { Client, GatewayIntentBits } = require("discord.js")
 
-const options = require("./options")
 const consts = require("./consts")
 const events = require("./events")
 const logger = require("./logger").logger
 
-exports.load_cli = () => {
+exports.token = ""
+
+/**
+ * 起動時のオプション引数を取得する
+ */
+exports.set_cli_options = (options) => {
     // コマンドラインのオプション引数設定
     cli_option
         .option("-r, --release_mode", "リリースモードで起動します", false)
@@ -17,16 +22,18 @@ exports.load_cli = () => {
 
     const cli_option_val = cli_option.opts()
     options.is_release = cli_option_val.is_release
-    logger.info(`${options.is_release ? "リリース" : "テスト"}モードで起動します`)
+    logger.info(`${options.is_release ? "リリース" : "テスト"}モードで起動開始`)
 
     options.option_dir = cli_option_val.option_dir
     options.client = null
 }
 
+/**
+ * ボットの権限を設定し、クライアントのインスタンスを生成する
+ */
 exports.create_client = () => {
     // Discordクライアントを作成
-    const { Client, GatewayIntentBits } = require("discord.js")
-    options.client = new Client({
+    const client = new Client({
         intents: [
             GatewayIntentBits.Guilds,
             GatewayIntentBits.GuildMembers,
@@ -39,31 +46,21 @@ exports.create_client = () => {
         ],
     })
     // eventsを全てclientに登録
-    events.forEach(({ name, handler }) => options.client.on(name, handler))
+    events.forEach(({ name, handler }) => client.on(name, handler))
+    return client
 }
 
-exports.load_settings_file = () => {
-    logger.info(`設定を次のディレクトリから取得します：${options.option_dir}`)
+/**
+ * 設定ファイルの読み込み
+ */
+exports.load_settings_file = (bot_token_file_path) => {
+    logger.info(`設定を次のファイルから取得します：${bot_token_file_path}`)
 
-    let bot_token_file_path = options.parse_option_path(consts.SETTING_FILENAME)
-
-    const settings = fs.readFileSync(bot_token_file_path, "utf8")
-    const token = yaml.load(settings)["token"]
-    options.client.login(token)
     try {
         const settings = fs.readFileSync(bot_token_file_path, "utf8")
-        const token = yaml.load(settings)["token"]
-        // トークンを使ってDiscordにログイン
-        options.client.login(token)
+        this.token = yaml.load(settings)["token"]
     } catch {
-        logger.warn(`"${bot_token_file_path}"にBotのトークンを保存してください`)
+        logger.critical(`"${bot_token_file_path}"にBotのトークンを保存してください\n起動を中止します`)
         process.exit()
-    }
-    //フォルダの自動生成
-    let guilds_option_dir_path = options.parse_option_path(consts.GUILDS_DIRNAME)
-    if (!fs.existsSync(guilds_option_dir_path)) {
-        fs.mkdirSync(guilds_option_dir_path, {
-            recursive: true,
-        })
     }
 }
