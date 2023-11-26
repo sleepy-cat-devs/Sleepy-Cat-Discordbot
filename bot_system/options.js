@@ -3,10 +3,20 @@
 //データファイルの読み込み，変更をするプログラムを集約
 
 const { ChannelType } = require("discord.js")
-const consts = require("./consts")
 const yaml = require("js-yaml")
 const fs = require("fs")
 const path = require("path")
+
+const consts = require("./consts")
+const logger = require("./logger").logger
+
+const GUILD_TEXT = "GUILD_TEXT"
+const GUILD_VOICE = "GUILD_VOICE"
+let CHANNEL_TYPE_DICT = {}
+CHANNEL_TYPE_DICT[ChannelType.GuildText] = GUILD_TEXT
+CHANNEL_TYPE_DICT[ChannelType.GuildVoice] = GUILD_VOICE
+
+logger.debug(CHANNEL_TYPE_DICT)
 
 // 実行時定数
 exports.version
@@ -32,22 +42,21 @@ exports.get_voice_default_channel = (guildid, channelid) => {
 exports.initialize = () => {
     this.guild_data = {}
     //ボット更新情報の読み込み
-    this.update = yaml.load(fs.readFileSync("./update.yml", "utf8"))
+    this.update = yaml.load(fs.readFileSync(this.parse_option_path(consts.UPDATE_FILENAME), "utf8"))
 
     this.version = this.get_version()
 
-    let d = this.client.guilds.cache.map(a => [a.id, a.name])
+    this.guild_list = this.client.guilds.cache.map(a => [a.id, a.name])
 
-    for (let i = 0; i < d.length; i++) {
-        this.guild_data[d[i][0]] = {
-            "guild_name": d[i][1]
-        }
+    for (const g of this.guild_list) {
+        this.guild_data[g[0]] = { "guild_name": g[1] }
     }
-    //サーバーリストの書き出し
-    for (let i = 0; i < d.length; i++) {
-        this.guild_list.push({
-            "name": d[i][1],
-            "id": d[i][0]
+
+    //guildsフォルダの自動生成
+    let guilds_option_dir_path = this.parse_option_path(consts.GUILDS_DIRNAME)
+    if (!fs.existsSync(guilds_option_dir_path)) {
+        fs.mkdirSync(guilds_option_dir_path, {
+            recursive: true,
         })
     }
 
@@ -55,52 +64,60 @@ exports.initialize = () => {
     const guilds_list_file_path = this.parse_option_path(consts.GUILDS_FILENAME)
     fs.writeFileSync(guilds_list_file_path, JSON.stringify(this.guild_list, null, 2))
 
-    //サーバーデータの取得
-    d = Object.keys(this.guild_data)
-    for (let i = 0; i < d.length; i++) {
-        //サーバーオプションデータの出力、データ取得済みチャンネルはパス
-        const guild_channels_file_path = this.parse_option_path(consts.GUILDS_DIRNAME, `${d[i]}.json`)
+    for (const g_id in this.guild_data) {
+        const guild_channels_file_path = this.parse_option_path(consts.GUILDS_DIRNAME, `${g_id}.json`)
+        const target_guild = this.guild_data[g_id]
+
+        // サーバーに存在するチャンネル一覧の取得
+        target_guild[GUILD_TEXT] = []
+        target_guild[GUILD_VOICE] = []
+
+        let saved_voicech_setting = {}
+
         if (fs.existsSync(guild_channels_file_path)) {
-            console.log(`${guild_channels_file_path} is found`)
-
-            this.guild_data[d[i]] = JSON.parse(fs.readFileSync(guild_channels_file_path, "utf8"))
+            // ボイスチャット設定済みのチャンネルを読み込み
+            logger.debug(`${guild_channels_file_path}から設定済みのチャンネル一覧を読み込みます`)
+            const voice_chs = JSON.parse(fs.readFileSync(guild_channels_file_path, "utf8"))[GUILD_VOICE]
+            for (const voice_ch of voice_chs) {
+                // 保存されたファイルの設定を取得
+                saved_voicech_setting[voice_ch["ch_id"]] = voice_ch["default_textchid"]
+            }
         } else {
-            console.log(`${guild_channels_file_path} is not found`)
-
-            this.guild_data[d[i]]["GUILD_TEXT"] = []
-            this.guild_data[d[i]]["GUILD_VOICE"] = []
-
-            const guild = this.client.guilds.cache.get(d[i])
-            const syschid = guild.systemChannelId
-            const channels = guild.channels.cache.map(ch => { return { ch_type: ch.type, ch_id: ch.id, ch_name: ch.name } })
-            // console.log(guild.channels.cache)
-            console.dir(channels, { depth: 2 })
-
-            for (let j = 0; j < channels.length; j++) {
-                let channel_type_text = null;
-                switch (channels[j]["ch_type"]) {
-                    case ChannelType.GuildText:
-                        channel_type_text = "GUILD_TEXT"
-                        break
-                    case ChannelType.GuildVoice:
-                        channel_type_text = "GUILD_VOICE"
-                        break
-                }
-
-                if (channel_type_text != null) {
-                    this.guild_data[d[i]][channel_type_text].push({
-                        "ch_id": channels[j]["ch_id"],
-                        "name": channels[j]["ch_name"]
-                    })
-                }
-            }
-            for (let j = 0; j < this.guild_data[d[i]]["GUILD_VOICE"].length; j++) {
-                this.guild_data[d[i]]["GUILD_VOICE"][j]["default_textchid"] = syschid
-            }
-            fs.writeFileSync(guild_channels_file_path, JSON.stringify(this.guild_data[d[i]], null, 2))
+            logger.debug(`${guild_channels_file_path}は存在しません`)
         }
+
+        const guild = this.client.guilds.cache.get(g_id)
+        const system_ch_id = guild.systemChannelId
+        // JSONファイル内の形式のの変換処理まで一気にできそうな気がするが
+        // NOTE sqliteでの管理に変更予定（別ブランチ）
+        const channels = guild.channels.cache.map(ch => { return { ch_type: ch.type, ch_id: ch.id, ch_name: ch.name } })
+
+        for (const ch of channels) {
+            const ch_type_str = String(ch["ch_type"])
+            if (!(ch_type_str in CHANNEL_TYPE_DICT)) {
+                continue
+            }
+            ch_type_text = CHANNEL_TYPE_DICT[ch_type_str]
+            let ch_entry = {
+                ch_id: ch["ch_id"],
+                name: ch["ch_name"]
+            }
+            if (ch_type_text === GUILD_VOICE) {
+                if (ch["ch_id"] in saved_voicech_setting) {
+                    // ファイルに保存されている内容がある場合はそのままコピー
+                    ch_entry["default_textchid"] = saved_voicech_setting[ch["ch_id"]]
+                } else {
+                    // ファイルで設定されていない場合はシステムチャンネルを指定
+                    ch_entry["default_textchid"] = system_ch_id
+                }
+            }
+
+            target_guild[ch_type_text].push(ch_entry)
+        }
+
+        fs.writeFileSync(guild_channels_file_path, JSON.stringify(target_guild, null, 2))
     }
-    console.log(this.guild_data)
+    logger.debug(this.guild_data)
 }
 
 exports.guild_data_update = (guild_id) => {
@@ -120,7 +137,7 @@ exports.channel_data_update = (type, channel_type, channel) => {
     if (type == "Create") {
         //VCのみデフォルトの通知チャンネルを設定
         if (channel_type == "GUILD_VOICE") {
-            ch_data["default_textchid"] = channel.guild.systemChannelId
+            ch_data["default_textchid"] = channel.g.systemChannelId
         }
         this.guild_data[channel.guildId][channel_type].push(ch_data)
         console.log(channel.name, "を", channel_type, "として追加しました")
