@@ -1,9 +1,10 @@
 {
   "dependencies": {
-    "commander": "^11.0.0",
-    "discord.js": "^14.3.0",
+    "commander": "^11.1.0",
+    "discord.js": "^14.14.1",
     "event.js": "^0.1.0",
-    "mysql": "^2.18.1"
+    "js-yaml": "^4.1.0",
+    "log4js": "^1.0.0"
   },
   "name": "sleepy-cat-discordbot",
   "version": "1.0.0",
@@ -13,13 +14,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/nekorobi/Sleepy-Cat-Discordbot.git"
+    "url": "git+https://github.com/sleepy-cat-devs/Sleepy-Cat-Discordbot.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/nekorobi/Sleepy-Cat-Discordbot/issues"
+    "url": "https://github.com/sleepy-cat-devs/Sleepy-Cat-Discordbot/issues"
   },
-  "homepage": "https://github.com/nekorobi/Sleepy-Cat-Discordbot#readme",
+  "homepage": "https://github.com/sleepy-cat-devs/Sleepy-Cat-Discordbot#readme",
   "description": ""
 }

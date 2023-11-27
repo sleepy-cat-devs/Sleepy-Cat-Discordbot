@@ -2,3 +2,5 @@ node_modules/
 .vscode/settings.json
 token
 guilds/
+**/settings.yml
+guilds_list.json
