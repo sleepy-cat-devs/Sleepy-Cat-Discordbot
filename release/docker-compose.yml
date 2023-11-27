@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+  discordbot:
+    build:
+      dockerfile: Dockerfile
+    container_name: praxi-release
+    tty: true
+    restart: unless-stopped
+    # リリースモードで起動
+    command: node index.js -r
