@@ -10,7 +10,7 @@ exports.send_message = (channel, mes) => {
     if (!options.is_release) {
         //テスト中はコンソールにログが出る
         logger.debug("チャンネル：" + channel + "\n" + mes + " を投稿しようとしました")
-    } else {
+    } else if(channel !== undefined){
         channel.send(mes)
     }
 }
