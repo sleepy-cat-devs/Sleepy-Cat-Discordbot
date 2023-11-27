@@ -21,7 +21,7 @@ exports.set_cli_options = (options) => {
     cli_option.parse()
 
     const cli_option_val = cli_option.opts()
-    options.is_release = cli_option_val.is_release
+    options.is_release = cli_option_val.release_mode
     logger.info(`${options.is_release ? "リリース" : "テスト"}モードで起動開始`)
 
     options.option_dir = cli_option_val.option_dir
