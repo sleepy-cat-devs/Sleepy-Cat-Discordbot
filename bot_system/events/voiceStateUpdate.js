@@ -6,13 +6,14 @@ const name = 'voiceStateUpdate'
 const options = require("../options")
 
 const messagepost = require("../messagepost")
+const logger = require("../logger").logger
 
 const handler = (oldStatus, newStatus) => {
     //対象がbotの場合はスルー
     if (newStatus.member.user.bot)
         return
 
-    console.log("change voice status")
+    logger.debug("change voice status")
     if (oldStatus.channel != newStatus.channel) {
         //ボイチャ参加  対象がbotの場合は判定なし
         if (newStatus.channel != null && !newStatus.member.user.bot) __join_vc(newStatus)
@@ -23,16 +24,14 @@ const handler = (oldStatus, newStatus) => {
     if (oldStatus.streaming != newStatus.streaming && newStatus.streaming) {
         const channel = __getVoiceDefaultChannel(newStatus)
         messagepost.send_message(channel, `${newStatus.member.displayName} が ${newStatus.channel} で画面共有を開始しました`)
-        //console.dir(newStatus.member,{depth:3})
     }
     //サーバーミュート（VoiseStatueのコンソール出力用）
     if (oldStatus.serverMute != newStatus.serverMute && newStatus.serverMute) {
-        //const channel=options.getvoicedefaultchannel(newStatus.guild["id"],newStatus.channelId)
-        console.log("\nserverMute")
+        logger.debug("\nserverMute")
         console.dir(newStatus.member.presences, {
             depth: 3
         })
-        console.log("\n")
+        logger.debug("\n")
     }
     //カメラ共有の開始
     if (oldStatus.selfVideo != newStatus.selfVideo && newStatus.selfVideo) {
@@ -47,7 +46,7 @@ module.exports = {
 }
 
 function __getVoiceDefaultChannel(status) {
-    return options.getvoicedefaultchannel(status.guild["id"], status.channelId)
+    return options.get_voice_default_channel(status.guild["id"], status.channelId)
 }
 
 let vcDict = new Object();
@@ -62,7 +61,7 @@ let vcDict = new Object();
 
 //通話参加時
 function __join_vc(status) {
-    console.log("join_vc");
+    logger.debug("join_vc");
     messagepost.send_message(
         __getVoiceDefaultChannel(status),
         `${status.member.displayName} が ${status.channel} に参加しました`)
@@ -78,26 +77,26 @@ function __join_vc(status) {
         entry.totalTime = 0
         vcDict[status.channelId] = entry
     }
-    console.log(vcDict)
+    logger.debug(vcDict)
 }
 
 //通話退出
 function __leave_vc(status) {
-    console.log("leave_vc");
+    logger.debug("leave_vc");
     if (String(status.channelId) in vcDict) {
         let entry = vcDict[status.channelId]
         if (__getUserLen(status) == 0) {
             if (entry.members.size >= 2) {
-                console.log(entry.totalTime)
-                console.log(__getHMS(entry.totalTime))
+                logger.debug(entry.totalTime)
+                logger.debug(__getHMS(entry.totalTime))
                 let mes = `${status.channel}の通話が終了しました\n>>> `
                 mes += `通話時間:${__getHMS(entry.totalTime)}\n`
                 mes += `参加人数:${entry.members.size}人\n`
                 mes += "参加者:"
                 membersArray = Array.from(entry.members)
                 membersArray.forEach(member => {
-                    console.log(member)
-                    console.log(status.guild.members.cache.get(member).displayName)
+                    logger.debug(member)
+                    logger.debug(status.guild.members.cache.get(member).displayName)
                     mes += status.guild.members.cache.get(member).displayName + (member != membersArray[membersArray.length - 1] ? ", " : "")
                 });
                 messagepost.send_message(__getVoiceDefaultChannel(status), mes)
@@ -119,7 +118,7 @@ function __getHMS(tt) {
     let m = tt % 60
     tt = Math.trunc(tt / 60)
     let h = tt
-    let text = (h > 0 ? `${h}時間` : "") + (m > 0 ? `${m}分` : "") + `${s}秒`
+    let text = `${(h > 0 ? `${h}時間` : "")}${(m > 0 ? `${m}分` : "")}${s}.${ms}秒`
     return text
 }
 

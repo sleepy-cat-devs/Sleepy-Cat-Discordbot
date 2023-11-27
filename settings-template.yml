@@ -1,0 +1,5 @@
+# 任意のボットアカウントで実行する場合
+# トークンコードを記入し、settings.ymlとして保存する
+token: TOKEN
+# 出力するログレベル（記述しない場合info扱い）
+loglevel: info
