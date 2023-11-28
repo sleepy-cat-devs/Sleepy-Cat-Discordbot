@@ -2,12 +2,14 @@
 
 //データファイルの読み込み，変更をするプログラムを集約
 
-const { ChannelType } = require("discord.js")
-const yaml = require("js-yaml")
+const cli_option = require("commander")
+const { Client, ChannelType, GatewayIntentBits } = require("discord.js")
 const fs = require("fs")
+const yaml = require("js-yaml")
 const path = require("path")
 
 const consts = require("./consts")
+const events = require("./events")
 const logger = require("./logger").logger
 
 const GUILD_TEXT = "GUILD_TEXT"
@@ -20,17 +22,91 @@ const DEFAULT_TEXTCHID = "default_textchid"
 
 logger.debug(CHANNEL_TYPE_DICT)
 
-// 実行時定数
-exports.version
-exports.is_release
-exports.client
-exports.option_dir
+// ボットバージョン
+exports.version = undefined
+// 実行モード
+exports.is_release = false
+// ボットクライアントインスタンス
+exports.client = undefined
+// 設定ファイルのディレクトリ
+exports.option_dir = consts.DEFAULT_OPTION_DIR
+// ボットトークン
+exports.token = undefined
 
 // 更新内容ファイル
-exports.update
+exports.update = undefined
 
 // 参加したDiscordサーバーの一覧
 exports.guild_list = []
+
+/**
+* 起動時のオプション引数を取得する
+*/
+exports.get_cli_options = () => {
+    // コマンドラインのオプション引数設定
+    cli_option
+        .option("-r, --release_mode", "リリースモードで起動します", false)
+        .option("-d, --option_dir <optionValue>", "設定ディレクトリパスを指定", consts.DEFAULT_OPTION_DIR)
+
+    cli_option.parse()
+
+    const cli_option_val = cli_option.opts()
+    this.is_release = cli_option_val.release_mode
+    logger.info(`${this.is_release ? "リリース" : "テスト"}モードで起動開始`)
+
+    this.option_dir = cli_option_val.option_dir
+
+    return true
+}
+
+/**
+ * 設定ファイルの読み込み
+ */
+exports.load_settings_file = () => {
+    const settings_file_path = this.parse_option_path(consts.SETTING_FILENAME)
+
+    logger.info(`設定を${settings_file_path}から取得します`)
+
+    if (!fs.existsSync(settings_file_path)) {
+        logger.critical("設定ファイルが存在しません")
+        return false
+    }
+
+    // 設定ファイルの読み込み
+    const settings = yaml.load(fs.readFileSync(settings_file_path, "utf8"))
+
+    this.token = settings["token"] ?? undefined
+
+    if (this.token === undefined) {
+        logger.critical("tokenが設定されていません")
+        return false
+    }
+    logger.debug("tokenを取得しました")
+    return true
+}
+
+/**
+ * ボットの権限を設定し、クライアントのインスタンスを生成する
+ */
+exports.create_client = () => {
+    // Discordクライアントを作成
+    const client = new Client({
+        intents: [
+            GatewayIntentBits.Guilds,
+            GatewayIntentBits.GuildMembers,
+            GatewayIntentBits.GuildMessages,
+            GatewayIntentBits.GuildMessageReactions,
+            GatewayIntentBits.GuildVoiceStates,
+            GatewayIntentBits.DirectMessages,
+            GatewayIntentBits.DirectMessageReactions,
+            GatewayIntentBits.MessageContent
+        ],
+    })
+    // eventsを全てclientに登録
+    events.forEach(({ name, handler }) => client.on(name, handler))
+    client.login(this.token)
+    this.client = client
+}
 
 exports.get_voice_default_channel = (guildid, channelid) => {
     for (const vc_ch of this.guild_data[guildid][GUILD_VOICE]) {
@@ -112,7 +188,6 @@ exports.initialize = () => {
                     ch_entry[DEFAULT_TEXTCHID] = saved_voicech_setting[ch["ch_id"]]
                 }
             }
-
             target_guild[ch_type_text].push(ch_entry)
         }
 
