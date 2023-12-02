@@ -5,6 +5,8 @@ services:
     build:
       dockerfile: Dockerfile
     container_name: praxi-release
+    volumes:
+      - ./guilds:/praxi/guilds
     tty: true
     restart: unless-stopped
     # リリースモードで起動
