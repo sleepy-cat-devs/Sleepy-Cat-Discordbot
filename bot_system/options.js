@@ -188,7 +188,6 @@ exports.initialize = () => {
                     ch_entry[DEFAULT_TEXTCHID] = saved_voicech_setting[ch["ch_id"]]
                 }
             }
-
             target_guild[ch_type_text].push(ch_entry)
         }
 
