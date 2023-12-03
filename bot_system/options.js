@@ -205,7 +205,6 @@ exports.get_version = () => {
     return this.update[0]["ver"]
 }
 
-//NOTE  作成と削除で別々の関数にするべきでは
 exports.channel_data_update = (type, channel_type, channel) => {
     let ch_data = {}
     ch_data["ch_id"] = channel.id
