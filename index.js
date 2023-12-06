@@ -2,7 +2,6 @@
  * botのmainプログラム
  * 起動時に実行するファイル
 **/
-
 const options = require("./bot_system/options")
 
 // コマンドライン引数の読み込み
