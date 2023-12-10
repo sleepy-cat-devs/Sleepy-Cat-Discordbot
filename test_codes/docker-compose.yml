@@ -1,0 +1,10 @@
+version: '3'
+
+services:
+  discordbot:
+    build:
+      dockerfile: Dockerfile
+    container_name: praxi-test
+    volumes:
+      - ./:/praxi
+    tty: true

@@ -4,3 +4,4 @@ token
 guilds/
 **/settings.yml
 guilds_list.json
+test_codes/sqlite/praxi.db

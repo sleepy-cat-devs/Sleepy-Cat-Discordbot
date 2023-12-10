@@ -6,5 +6,3 @@ RUN npm install
 RUN npm install -g npm-check-updates
 RUN apt update
 RUN apt install -y sqlite3
-# トークンを格納したファイルのコピー
-COPY settings.yml /praxi/
