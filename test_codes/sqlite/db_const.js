@@ -20,9 +20,9 @@ class m_servers {
     }
     static get SCHEMA() {
         return `${this.NAME}(
-    ${this.KEYS.ID} integer primary key autoincrement,
-    ${this.KEYS.GUILD_REAL_ID} text not null unique
-);`
+            ${this.KEYS.ID} integer primary key autoincrement,
+            ${this.KEYS.GUILD_REAL_ID} text not null unique
+        );`
     }
 }
 
@@ -40,13 +40,17 @@ class m_notify_channels {
     }
     static get SCHEMA() {
         return `${this.NAME}(
-    ${this.KEYS.VOICE_ID} text primary key,
-    ${this.KEYS.TEXT_ID} text not null,
-    ${this.KEYS.SERVER_ID} integer not null,
-    ${this.KEYS.IS_NOTIFY} integer default 1,
-    foreign key (server_id) references m_servers(id),
-    unique(${this.KEYS.VOICE_ID},${this.KEYS.TEXT_ID})
-);`
+            ${this.KEYS.VOICE_ID} text primary key,
+            ${this.KEYS.TEXT_ID} text not null,
+            ${this.KEYS.SERVER_ID} integer not null,
+            ${this.KEYS.IS_NOTIFY} integer default 1,
+            foreign key (server_id) references m_servers(id)
+        );`
+    }
+    static get SHORT() {
+        return {
+            INSERT: `${this.NAME}(${this.KEYS.VOICE_ID}, ${this.KEYS.TEXT_ID}, ${this.KEYS.SERVER_ID}) values (?, ?, ?)`
+        }
     }
 }
 

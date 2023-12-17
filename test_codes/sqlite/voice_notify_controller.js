@@ -8,7 +8,7 @@ const { DB_SIMPLIFIER, M_SERVERS, M_NOTIFY_CHANNELS } = require("./db_const")
 exports.show_all_entry = () => {
 }
 
-// TODO 
+// TODO テーブルの初期化
 exports.create_tables = () => {
     praxi_db.serialize(() => {
         praxi_db.run(DB_SIMPLIFIER.FOREIGN_KEYS)
@@ -39,21 +39,45 @@ exports.get_notify_text_ch_id = (voice_ch) => {
     ch_id = voice_ch.id
 }
 
-// TODO ボイスチャンネル追加時の処理
+/**
+ * ボイスチャットをテーブルに追加する
+ * @param {*} voice_ch ボイスチャンネルのインスタンス
+ */
 exports.voice_ch_created = (voice_ch) => {
     guild_id = voice_ch.guildId
     ch_id = voice_ch.id
     notify_ch_id = voice_ch.g.systemChannelId
+    praxi_db.serialize(() => {
+        praxi_db.get("SELECT * from m_servers WHERE guild_real_id == ?", [guild_id],)
+        praxi_db.get(`SELECT * from ${M_SERVERS.NAME} WHERE ${M_SERVERS.KEYS.GUILD_REAL_ID} == ?`, [guild_id], (err, row) => {
+            if (err || row === undefined) {
+                // TODO エラーログ
+                return
+            }
+            praxi_db.run(`INSERT INTO ${M_NOTIFY_CHANNELS.SHORT.INSERT} ON CONFLICT (${M_NOTIFY_CHANNELS.KEYS.VOICE_ID}) DO NOTHING;`, ch_id, notify_ch_id, row.id)
+        })
+    })
 }
 
 // TODO ボイスチャンネル削除時の処理
 exports.voice_ch_deleted = (voice_ch) => {
     ch_id = voice_ch.id
+    console.log(ch_id)
+    praxi_db.serialize(() => {
+        praxi_db.run(`DELETE from ${M_NOTIFY_CHANNELS.NAME} WHERE ${M_NOTIFY_CHANNELS.KEYS.VOICE_ID} = ?`, ch_id, err => {
+        })
+    })
 }
 
 // TODO 通知設定一覧の取得
 exports.get_notify_settings = () => {
 }
 
-this.create_tables()
-this.sync_joined_servers()
+praxi_db.serialize(() => {
+    voice_ch = {
+        guildId: "DEF",
+        id: "beta",
+        g: { systemChannelId: "hoge" }
+    }
+    this.voice_ch_deleted(voice_ch)
+})
