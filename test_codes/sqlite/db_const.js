@@ -1,10 +1,10 @@
 class db_simplifier {
-    static get FOREIGN_KEYS() {
-        return "PRAGMA foreign_keys=true"
+    static db_settings() {
+        return ["PRAGMA foreign_keys=true"]
     }
 
-    static get PREFIX_NEW_TABLE() {
-        return "CREATE TABLE IF NOT EXISTS"
+    static create_table(table) {
+        return `CREATE TABLE IF NOT EXISTS ${table.SCHEMA}`
     }
 }
 
@@ -23,6 +23,12 @@ class m_servers {
             ${this.KEYS.ID} integer primary key autoincrement,
             ${this.KEYS.GUILD_REAL_ID} text not null unique
         );`
+    }
+    static add_server(server_id) {
+        return [`INSERT INTO ${this.NAME}(${this.KEYS.GUILD_REAL_ID}) values(?) ON CONFLICT(${this.KEYS.GUILD_REAL_ID}) DO NOTHING;`, server_id]
+    }
+    static get_server_id(server_id, func) {
+        return [`SELECT * from ${this.NAME} WHERE ${this.KEYS.GUILD_REAL_ID} == ?`, [server_id], func]
     }
 }
 
@@ -51,6 +57,12 @@ class m_notify_channels {
         return {
             INSERT: `${this.NAME}(${this.KEYS.VOICE_ID}, ${this.KEYS.TEXT_ID}, ${this.KEYS.SERVER_ID}) values (?, ?, ?)`
         }
+    }
+    static add_voice_ch(ch_id, notify_ch_id, server_id) {
+        return [`INSERT INTO ${this.NAME} (${this.KEYS.VOICE_ID}, ${this.KEYS.TEXT_ID}, ${this.KEYS.SERVER_ID}) values(?, ?, ?) ON CONFLICT (${this.KEYS.VOICE_ID}) DO NOTHING;`, ch_id, notify_ch_id, server_id]
+    }
+    static del_voice_ch(ch_id, func) {
+        return [`DELETE from ${this.NAME} WHERE ${this.KEYS.VOICE_ID} = ?`, ch_id, func]
     }
 }
 
