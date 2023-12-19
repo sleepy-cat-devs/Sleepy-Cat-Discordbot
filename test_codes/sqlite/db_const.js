@@ -24,11 +24,14 @@ class m_servers {
             ${this.KEYS.GUILD_REAL_ID} text not null unique
         );`
     }
-    static add_server(server_id) {
-        return [`INSERT INTO ${this.NAME}(${this.KEYS.GUILD_REAL_ID}) values(?) ON CONFLICT(${this.KEYS.GUILD_REAL_ID}) DO NOTHING;`, server_id]
+    static get QUERY() {
+        return {
+            INSERT: `INSERT INTO ${this.NAME}(${this.KEYS.GUILD_REAL_ID}) values($guild_real_id) ON CONFLICT(${this.KEYS.GUILD_REAL_ID}) DO NOTHING`,
+            SELECT: `SELECT ${this.KEYS.ID} from ${this.NAME} WHERE ${this.KEYS.GUILD_REAL_ID} == $guild_real_id`
+        }
     }
-    static get_server_id(server_id, func) {
-        return [`SELECT * from ${this.NAME} WHERE ${this.KEYS.GUILD_REAL_ID} == ?`, [server_id], func]
+    static add_server(server_id, func = err => { }) {
+        return [this.QUERY.INSERT, { $guild_real_id: server_id }, func]
     }
 }
 
@@ -53,16 +56,21 @@ class m_notify_channels {
             foreign key (server_id) references m_servers(id)
         );`
     }
-    static get SHORT() {
+    static get QUERY() {
         return {
-            INSERT: `${this.NAME}(${this.KEYS.VOICE_ID}, ${this.KEYS.TEXT_ID}, ${this.KEYS.SERVER_ID}) values (?, ?, ?)`
+            INSERT: `INSERT INTO ${this.NAME} (${this.KEYS.VOICE_ID}, ${this.KEYS.TEXT_ID}, ${this.KEYS.SERVER_ID}) VALUES ($voice_id, $text_id, (${m_servers.QUERY.SELECT})) ON CONFLICT (${this.KEYS.VOICE_ID}) DO NOTHING`,
+            UPDATE: `UPDATE ${this.NAME} SET ${this.KEYS.TEXT_ID} = $text_id WHERE ${this.KEYS.VOICE_ID} = $voice_id`,
+            DELETE: `DELETE from ${this.NAME} WHERE ${this.KEYS.VOICE_ID} = $voice_ch`
         }
     }
-    static add_voice_ch(ch_id, notify_ch_id, server_id) {
-        return [`INSERT INTO ${this.NAME} (${this.KEYS.VOICE_ID}, ${this.KEYS.TEXT_ID}, ${this.KEYS.SERVER_ID}) values(?, ?, ?) ON CONFLICT (${this.KEYS.VOICE_ID}) DO NOTHING;`, ch_id, notify_ch_id, server_id]
+    static add_voice_ch(ch_id, notify_ch_id, server_real_id, func = err => { }) {
+        return [this.QUERY.INSERT, { $voice_id: ch_id, $text_id: notify_ch_id, $guild_real_id: server_real_id }, func]
     }
-    static del_voice_ch(ch_id, func) {
-        return [`DELETE from ${this.NAME} WHERE ${this.KEYS.VOICE_ID} = ?`, ch_id, func]
+    static update_notify_ch(ch_id, notify_ch_id, func = err => { }) {
+        return [this.QUERY.UPDATE, { $voice_id: ch_id, $text_id: notify_ch_id }, func]
+    }
+    static del_voice_ch(ch_id, func = err => { }) {
+        return [this.QUERY.DELETE, { $voice_id: ch_id }, func]
     }
 }
 

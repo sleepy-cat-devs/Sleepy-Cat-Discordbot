@@ -27,9 +27,10 @@ exports.sync_joined_servers = (server_ids) => {
 
 // TODO 通知チャンネルの変更
 exports.update_notify_ch = (voice_ch, text_ch) => {
-    guild_id = voice_ch.guildId
     ch_id = voice_ch.id
     notify_ch_id = text_ch.id
+    console.log(ch_id, notify_ch_id)
+    praxi_db.run(...M_NOTIFY_CHANNELS.update_notify_ch(ch_id, notify_ch_id))
 }
 
 // TODO 通知チャンネルの取得
@@ -45,25 +46,13 @@ exports.voice_ch_created = (voice_ch) => {
     guild_id = voice_ch.guildId
     ch_id = voice_ch.id
     notify_ch_id = voice_ch.g.systemChannelId
-    praxi_db.serialize(() => {
-        praxi_db.get(
-            ...M_SERVERS.get_server_id(guild_id, (err, row) => {
-                if (err || row === undefined) {
-                    // TODO エラーログ
-                    return
-                }
-                praxi_db.run(...M_NOTIFY_CHANNELS.add_voice_ch(ch_id, notify_ch_id, row.id))
-            })
-        )
-    })
+    praxi_db.run(...M_NOTIFY_CHANNELS.add_voice_ch(ch_id, notify_ch_id, guild_id))
 }
 
 // TODO ボイスチャンネル削除時の処理
 exports.voice_ch_deleted = (voice_ch) => {
     ch_id = voice_ch.id
-    praxi_db.serialize(() => {
-        praxi_db.run(...M_NOTIFY_CHANNELS.del_voice_ch(ch_id, err => { }))
-    })
+    praxi_db.run(...M_NOTIFY_CHANNELS.del_voice_ch(ch_id))
 }
 
 // TODO 通知設定一覧の取得
@@ -79,4 +68,11 @@ praxi_db.serialize(() => {
         g: { systemChannelId: "hoge" }
     }
     this.voice_ch_created(voice_ch)
+    voice_ch = {
+        id: "beta"
+    }
+    text_ch = {
+        id: "fuga"
+    }
+    this.update_notify_ch(voice_ch, text_ch)
 })
