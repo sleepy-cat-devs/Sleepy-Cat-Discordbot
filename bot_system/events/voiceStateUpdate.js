@@ -6,6 +6,7 @@ const name = 'voiceStateUpdate'
 const options = require("../options")
 
 const messagepost = require("../messagepost")
+const { escapeMarkdown } = require("discord.js")
 const logger = require("../logger").logger
 
 const handler = (oldStatus, newStatus) => {
@@ -23,7 +24,7 @@ const handler = (oldStatus, newStatus) => {
     //画面共有の開始
     if (oldStatus.streaming != newStatus.streaming && newStatus.streaming) {
         const channel = __getVoiceDefaultChannel(newStatus)
-        messagepost.send_message(channel, `${newStatus.member.displayName} が ${newStatus.channel} で画面共有を開始しました`)
+        messagepost.send_md_escaped_message(channel, `${newStatus.member.displayName} が ${newStatus.channel} で画面共有を開始しました`)
     }
     //サーバーミュート（VoiseStatueのコンソール出力用）
     if (oldStatus.serverMute != newStatus.serverMute && newStatus.serverMute) {
@@ -36,7 +37,7 @@ const handler = (oldStatus, newStatus) => {
     //カメラ共有の開始
     if (oldStatus.selfVideo != newStatus.selfVideo && newStatus.selfVideo) {
         const channel = __getVoiceDefaultChannel(newStatus)
-        messagepost.send_message(channel, `${newStatus.member.displayName} が ${newStatus.channel} でカメラ共有を開始しました`)
+        messagepost.send_md_escaped_message(channel, `${newStatus.member.displayName} が ${newStatus.channel} でカメラ共有を開始しました`)
     }
 }
 
@@ -62,7 +63,7 @@ let vcDict = new Object();
 //通話参加時
 function __join_vc(status) {
     logger.debug("join_vc");
-    messagepost.send_message(
+    messagepost.send_md_escaped_message(
         __getVoiceDefaultChannel(status),
         `${status.member.displayName} が ${status.channel} に参加しました`)
     if (String(status.channelId) in vcDict) {
@@ -97,7 +98,9 @@ function __leave_vc(status) {
                 membersArray.forEach(member => {
                     logger.debug(member)
                     logger.debug(status.guild.members.cache.get(member).displayName)
-                    mes += status.guild.members.cache.get(member).displayName + (member != membersArray[membersArray.length - 1] ? ", " : "")
+                    // 全体のメッセージにMDを使用しているため、個々の displayName にMDエスケープをかける
+                    mes += escapeMarkdown(status.guild.members.cache.get(member).displayName)
+                     + (member != membersArray[membersArray.length - 1] ? ", " : "")
                 });
                 messagepost.send_message(__getVoiceDefaultChannel(status), mes)
                 delete vcDict[status.channelId]
